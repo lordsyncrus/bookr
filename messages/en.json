@@ -1,10 +1,11 @@
 {
-  "nav": { "signIn": "Sign in", "signOut": "Sign out", "start": "Get started", "authError": "Something went wrong. Please try again." },
+  "nav": { "signIn": "Sign in", "signOut": "Sign out", "start": "Get started", "account": "Account", "accountSettings": "Account settings", "authError": "Something went wrong. Please try again." },
   "home": {
     "eyebrow": "AI-assisted editorial review",
     "title": "Your book, only more yours.",
     "subtitle": "A digital editor that spots errors, inconsistencies and weak passages without rewriting your voice. Every suggestion stays under your control.",
     "cta": "Review your manuscript",
+    "dashboardCta": "Dashboard",
     "secondaryCta": "See the method",
     "proof1": "Your original is always preserved",
     "proof2": "Every change is explained",

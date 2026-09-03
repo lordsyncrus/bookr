@@ -1,10 +1,11 @@
 {
-  "nav": { "signIn": "Accedi", "signOut": "Esci", "start": "Inizia", "authError": "Operazione non riuscita. Riprova." },
+  "nav": { "signIn": "Accedi", "signOut": "Esci", "start": "Inizia", "account": "Account", "accountSettings": "Impostazioni account", "authError": "Operazione non riuscita. Riprova." },
   "home": {
     "eyebrow": "Revisione editoriale assistita dall’AI",
     "title": "Il tuo libro, ancora più tuo.",
     "subtitle": "Un editor digitale che individua errori, incoerenze e passaggi deboli senza riscrivere la tua voce. Ogni proposta resta sotto il tuo controllo.",
     "cta": "Revisiona il manoscritto",
+    "dashboardCta": "Dashboard",
     "secondaryCta": "Scopri il metodo",
     "proof1": "Originale sempre conservato",
     "proof2": "Ogni modifica è motivata",

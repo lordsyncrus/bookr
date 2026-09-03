@@ -1,11 +1,11 @@
-import { ArrowRight, Check, FileText, ScanSearch, ShieldCheck } from "lucide-react";
+import { Check, FileText, ScanSearch, ShieldCheck } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { SiteHeader } from "@/components/site-header";
+import { HeroPrimaryCta } from "@/components/hero-primary-cta";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "@/i18n/navigation";
 
 export default async function HomePage({
   params,
@@ -31,10 +31,7 @@ export default async function HomePage({
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-ink/65">{t("subtitle")}</p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button size="lg" nativeButton={false} render={<Link href="/workspace" />}>
-                {t("cta")}
-                <ArrowRight data-icon="inline-end" />
-              </Button>
+              <HeroPrimaryCta />
               <Button size="lg" variant="outline" nativeButton={false} render={<a href="#metodo" />}>
                 {t("secondaryCta")}
               </Button>
