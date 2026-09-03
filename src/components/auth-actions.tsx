@@ -40,15 +40,10 @@ export function AuthActions() {
       {user ? (
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={pending}
-                aria-label={`${t("account")}: ${user.displayName || user.primaryEmail || "Bookr"}`}
-                className="size-11 rounded-full p-0 hover:bg-coral/10"
-              />
-            }
+            type="button"
+            disabled={pending}
+            aria-label={`${t("account")}: ${user.displayName || user.primaryEmail || "Bookr"}`}
+            className="inline-flex size-11 items-center justify-center rounded-full p-0 outline-none transition-colors hover:bg-coral/10 focus-visible:ring-3 focus-visible:ring-coral/30 data-popup-open:bg-coral/10"
           >
             <UserAvatar user={user} />
           </DropdownMenuTrigger>
