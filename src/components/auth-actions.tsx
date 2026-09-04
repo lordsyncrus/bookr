@@ -11,7 +11,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -48,7 +47,7 @@ export function AuthActions() {
             <UserAvatar user={user} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={8} className="w-64 rounded-xl p-2">
-            <DropdownMenuLabel className="flex items-center gap-3 px-2 py-2.5">
+            <div className="flex items-center gap-3 px-2 py-2.5">
               <UserAvatar user={user} size="sm" />
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold text-ink">
@@ -58,7 +57,7 @@ export function AuthActions() {
                   <span className="block truncate text-xs font-normal text-ink/50">{user.primaryEmail}</span>
                 ) : null}
               </span>
-            </DropdownMenuLabel>
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="px-2 py-2" onClick={() => run(() => app.redirectToAccountSettings())}>
               <CircleUserRound />
