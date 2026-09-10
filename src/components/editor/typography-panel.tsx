@@ -1,5 +1,5 @@
 "use client";
-import { closeHistory } from "@tiptap/pm/history";
+import { alignParagraphs } from "@/lib/editor/alignment";
 import { useMemo } from "react";
 import type { Editor } from "@tiptap/react";
 import { useLocale, useTranslations } from "next-intl";
@@ -21,11 +21,7 @@ export function TypographyPanel({
   const en = useLocale() === "en";
   function alignBody(alignment: "left" | "justify") {
     if (locked) return;
-    const tr = closeHistory(editor.state.tr);
-    editor.state.doc.descendants((node, pos) => {
-      if (node.type.name === "paragraph" && node.attrs.textAlign !== alignment)
-        tr.setNodeMarkup(pos, undefined, { ...node.attrs, textAlign: alignment });
-    });
+    const tr = alignParagraphs(editor.state, alignment);
     if (tr.docChanged) editor.view.dispatch(tr);
   }
   const audit = useMemo(() => typographyAudit(project.doc), [project.doc]);
@@ -60,6 +56,7 @@ export function TypographyPanel({
         <h3>{t("typographyTitle")}</h3>
         <p>{t("typographyDescription")}</p>
       </div>
+      <label className="heading-flow-option"><input type="checkbox" checked={project.typography.keepHeadingsWithNext !== false} disabled={locked} onChange={event=>onChange({...project.typography,keepHeadingsWithNext:event.target.checked})}/><span>{en?"Keep headings with the following text":"Mantieni il titolo con il testo successivo"}<small>{en?"Applies to DOCX and PDF exports. The editor preview is temporarily disabled while pagination is stabilized.":"Si applica agli export DOCX e PDF. L’anteprima nell’editor è temporaneamente disattivata per stabilizzare la paginazione."}</small></span></label>
       <div className="inspector-fields">
         <label>
           {t("bodyFont")}
@@ -148,6 +145,9 @@ export function TypographyPanel({
         <p>{en ? "Apply to every normal paragraph, including lists and table cells. Headings, contents and bold/italic text are preserved. You can undo the operation." : "Applica a tutti i paragrafi normali, inclusi elenchi e celle delle tabelle. Titoli, indice, grassetti e corsivi vengono preservati. Puoi annullare l’operazione."}</p>
         <button className="studio-button secondary full" disabled={locked} onClick={() => alignBody("justify")}>{en ? "Justify all body text" : "Giustifica tutto il testo normale"}</button>
         <button className="studio-button text full" disabled={locked} onClick={() => alignBody("left")}>{en ? "Align all body text left" : "Allinea tutto il testo normale a sinistra"}</button>
+        <small>{en?"Body alignment excludes tables. Cell alignment remains unchanged.":"L’allineamento del corpo esclude le tabelle. Gli allineamenti delle celle restano invariati."}</small>
+        <button className="studio-button text full" disabled={locked} onClick={()=>{const tr=alignParagraphs(editor.state,"left","tables");if(tr.docChanged)editor.view.dispatch(tr);}}>{en?"Align table text left":"Allinea il testo delle tabelle a sinistra"}</button>
+        <small>{en?"Changes all table paragraphs, including numeric cells. You can undo it.":"Modifica tutti i paragrafi delle tabelle, comprese le celle numeriche. Puoi annullare l’operazione."}</small>
       </div>
       <div className="format-audit">
         <h4>

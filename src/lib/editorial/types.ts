@@ -1,6 +1,7 @@
 import type { JSONContent } from "@tiptap/core";
 import type { EditorialFinding } from "../editor/types";
 export type BookMetadata = {
+  editorialProfile?: Partial<import("../editor/book-profile").BookProfile>;
   title: string; subtitle: string; authors: string; writingYear: string; language: string;
   edition: string; publisher: string; publicationYear: string; publicationPlace: string;
   isbn: string; copyright: string; credits: string; rights: string; colophonNotes: string;
@@ -17,6 +18,7 @@ export type BookIssue = { id: string; category: "structure" | "continuity" | "ch
 export type PipelinePhase = "reading" | "chapters" | "memory" | "structure" | "continuity" | "editing" | "quality" | "complete";
 export type JobState = "queued" | "running" | "paused" | "error" | "complete" | "cancelled";
 export type AnalysisResult = {
+  inferredProfile?: Partial<import("../editor/book-profile").BookProfile>;
   jobId: string; version: number; sourceHash: string; state: JobState; phase: PipelinePhase;
   done: number; total: number; costUsd: number; inputTokens: number; outputTokens: number;
   budgetUsd: number; error: string | null; stale: boolean; mode: "full" | "final";
@@ -25,6 +27,9 @@ export type AnalysisResult = {
   createdAt: number; updatedAt: number;
 };
 export type EditorialJob = AnalysisResult & {
+  profileVersion?: 1;
+  editorialProfile?: Partial<import("../editor/book-profile").BookProfile>;
+  convergenceVersion?: 1; carriedFindingIds?: string[]; recheck?: boolean; unchangedChunks?: string[]; structureChapters?: string[]; reusedNotes?: ReadingNote[]; decisionMemory?: import("./convergence").DecisionMemory;
   owner: string; projectId: string; doc: JSONContent; locale: "it" | "en"; chunks: SourceChunk[];
   notes: ReadingNote[]; memoryQueue: ReadingNote[]; memoryNext: ReadingNote[]; phaseIndex: number;
   continuityGroups: BookFact[][]; qualityFindings: EditorialFinding[];

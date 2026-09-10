@@ -13,9 +13,12 @@ export type Typography = {
   size: number;
   lineHeight: number;
   paragraphSpacing: number;
+  showPageGaps?: boolean;
+  keepHeadingsWithNext?: boolean;
   margin: number;
 };
 export const DEFAULT_TYPOGRAPHY: Typography = {
+  keepHeadingsWithNext: true,
   font: "Georgia",
   size: 12,
   lineHeight: 1.6,
@@ -31,6 +34,9 @@ export type ReviewProgress = {
   model: string;
 };
 export type ManuscriptProject = {
+  writingCost?: number;
+  reviewDecisions?: import("../editorial/convergence").ReviewDecision[];
+  history?: import("./history").HistoryEntry[];
   version: 1;
   id: string;
   name: string;

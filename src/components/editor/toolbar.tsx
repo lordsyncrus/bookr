@@ -1,4 +1,5 @@
 "use client";
+import { AnnotationTools } from "./annotation-tools";
 import type { Editor } from "@tiptap/react";
 import { useEditorState } from "@tiptap/react";
 import { useTranslations } from "next-intl";
@@ -234,6 +235,7 @@ export function EditorToolbar({
           editor.chain().focus().unsetAllMarks().run();
         })}
       </div>
+      <AnnotationTools editor={editor} locked={locked}/>
     </div>
   );
 }

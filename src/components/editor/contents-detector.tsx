@@ -2,17 +2,17 @@
 import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Editor } from "@tiptap/react";
-import { detectContents, type DetectedContents } from "@/lib/editor/detect-contents";
+import { type DetectedContents } from "@/lib/editor/detect-contents";
 import type { ManuscriptProject } from "@/lib/editor/types";
-export function ContentsDetector({editor,project,locked,onChange,onNavigate}:{editor:Editor;project:ManuscriptProject;locked:boolean;onChange:(project:ManuscriptProject)=>void;onNavigate:(pos:number)=>void}) {
+export function ContentsDetector({editor,project,locked,onChange,onNavigate,initial}:{initial:DetectedContents;editor:Editor;project:ManuscriptProject;locked:boolean;onChange:(project:ManuscriptProject)=>void;onNavigate:(pos:number)=>void}) {
   const t=useTranslations("editor.detectContents");
-  const [detected,setDetected]=useState<DetectedContents|null>(null);
-  const [targets,setTargets]=useState<Record<number,number>>({});
+  const [detected,setDetected]=useState<DetectedContents|null>(()=>initial);
+  const [targets,setTargets]=useState<Record<number,number>>(()=>Object.fromEntries(initial.entries.map(e=>[e.sourcePos,e.targets.length===1?e.targets[0].pos:-1])));
   const snapshot = useRef(editor.state.doc);
-  const [levels,setLevels]=useState<Record<number,number>>({});
+  const [levels,setLevels]=useState<Record<number,number>>(()=>Object.fromEntries(initial.entries.map(e=>[e.sourcePos,e.targets.length===1?(e.targets[0].level||e.level):e.level])));
   const [preview,setPreview]=useState<number|null>(null);
   const [applied,setApplied]=useState(false);
-  const detect = useCallback(() => {snapshot.current=editor.state.doc;const result=detectContents(editor.state.doc);setDetected(result);setLevels(Object.fromEntries(result.entries.map(e=>[e.sourcePos,e.targets.length===1?(e.targets[0].level||e.level):e.level])));setTargets(Object.fromEntries(result.entries.map(e=>[e.sourcePos,e.targets.length===1?e.targets[0].pos:-1])));setApplied(false);setPreview(null);}, [editor]);
+  const detect = useCallback(() => {snapshot.current=editor.state.doc;const result=initial;setDetected(result);setLevels(Object.fromEntries(result.entries.map(e=>[e.sourcePos,e.targets.length===1?(e.targets[0].level||e.level):e.level])));setTargets(Object.fromEntries(result.entries.map(e=>[e.sourcePos,e.targets.length===1?e.targets[0].pos:-1])));setApplied(false);setPreview(null);}, [editor,initial]);
   const apply = useCallback(() => {
     if(!detected||locked)return;
     if(!snapshot.current.eq(editor.state.doc)){detect();return;}

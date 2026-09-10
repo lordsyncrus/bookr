@@ -23,6 +23,8 @@ export function AuthActions({showIdentity=false, showSettings=false, projects=[]
   const user = useUser();
   const t = useTranslations("nav");
   const en=useLocale()==="en";
+  const recordedCost = projects.reduce((total, project) => total + (project.analysis?.costUsd ?? project.review?.cost ?? 0) + (project.titlePlan?.cost ?? 0) + (project.writingCost ?? 0), 0);
+  const formattedCost = new Intl.NumberFormat(en ? "en-US" : "it-IT", { style: "currency", currency: "USD", minimumFractionDigits: 4 }).format(recordedCost);
   const [preferencesOpen,setPreferencesOpen]=useState(false);
   const [settingsOpen,setSettingsOpen]=useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +75,13 @@ export function AuthActions({showIdentity=false, showSettings=false, projects=[]
               <CircleUserRound />
               {t("accountSettings")}
             </DropdownMenuItem>
+            {showSettings && <div className="hexclave-private mx-2 my-2 border-y border-ink/10 py-3">
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="text-ink/60">{en ? "Total AI spend" : "Spesa AI totale"}</span>
+                <strong className="font-semibold tabular-nums text-ink">{formattedCost}</strong>
+              </div>
+              <p className="mt-1 text-[11px] leading-4 text-ink/45">{en ? "Latest analyses saved on this device; not a complete history." : "Ultime analisi salvate sul dispositivo; storico non completo."}</p>
+            </div>}
             <DropdownMenuItem className="px-2 py-2" onClick={() => run(() => app.redirectToSignOut())}>
               <LogOut />
               {t("signOut")}

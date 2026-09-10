@@ -1,3 +1,5 @@
+import { PageSection } from "./insert-page";
+import { UserHighlight, UserComment } from "./annotations";
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
@@ -91,7 +93,10 @@ export function editorExtensions() {
     Image.configure({ allowBase64: true }),
     Superscript,
     Subscript,
+    UserHighlight,
+    UserComment,
     ReviewHighlights,
     StructureTarget,
+    PageSection,
   ];
 }

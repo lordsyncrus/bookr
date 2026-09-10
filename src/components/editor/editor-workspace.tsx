@@ -1,10 +1,14 @@
 "use client";
+import { HistoryPanel } from "./history-panel";
+import { rememberDecisions, mergeReviewFindings } from "@/lib/editorial/convergence";
+import { ensureHistory, recordHistory, restoreHistory } from "@/lib/editor/history";
 import { useTitleActivity } from "@/lib/editor/ai-activity";
 import type { AnalysisResult } from "@/lib/editorial/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import {
+  History,
   Trash2,
   Search,
   BookOpen,
@@ -22,6 +26,7 @@ import {
 import { Link } from "@/i18n/navigation";
 import { AuthActions } from "@/components/auth-actions";
 import { countWords } from "@/lib/editor/document";
+import { duplicateProject } from "@/lib/editor/duplicate-project";
 import { loadProjects, saveProjects, changeProjectLifecycle } from "@/lib/editor/storage";
 import type { ManuscriptProject } from "@/lib/editor/types";
 import { useDialogFocus } from "./use-dialog-focus";
@@ -52,7 +57,7 @@ export function EditorWorkspace({
   const [projects, setProjects] = useState<ManuscriptProject[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [view, setView] = useState<"library" | "editor">("library");
+  const [view, setView] = useState<"library" | "editor" | "history">("library");
   const [panel, setPanel] = useState<"review" | "typography" | "book" | "structure" | "export" | null>("review");
   const [jump, setJump] = useState<{ pos: number; at: number } | null>(null);
   const [mobileNav, setMobileNav] = useState(false);
@@ -80,7 +85,7 @@ export function EditorWorkspace({
       .then((items) => {
         if (alive) {
           saveAllowed.current = true;
-          setProjects(items);
+          setProjects(items.map(item=>ensureHistory(item)));
           setLoaded(true);
         }
       })
@@ -118,7 +123,7 @@ export function EditorWorkspace({
   const updateProject = useCallback((project: ManuscriptProject) => {
     setSaveState("saving");
     setProjects((items) =>
-      items.map((item) => (item.id === project.id ? project : item)),
+      items.map((item) => (item.id === project.id ? recordHistory(item,{...project,reviewDecisions:rememberDecisions(item,project)}) : item)),
     );
   }, []);
   const titleActivity=useTitleActivity();
@@ -139,7 +144,7 @@ export function EditorWorkspace({
             const previous=p.analysis;
             if(previous?.jobId!==id||result.version<previous.version||(result.version===previous.version&&result.state===previous.state))return p;
             const completed=result.state==="complete"&&previous.state!=="complete";
-            return {...p,analysis:{...result,stale:previous.stale,issues:result.issues.map(issue=>({...issue,status:previous.issues.find(old=>old.id===issue.id)?.status||issue.status}))},...(completed&&!previous.stale&&result.mode==="full"?{findings:result.findings,review:{next:1,total:1,cost:result.costUsd,discarded:result.discarded,state:"complete" as const,model:result.model}}:{}),updatedAt:Date.now()};
+            return {...p,analysis:{...result,stale:previous.stale,issues:result.issues.map(issue=>({...issue,status:previous.issues.find(old=>old.id===issue.id)?.status||issue.status}))},...(completed&&!previous.stale?{findings:mergeReviewFindings(p.findings,result.findings),review:{next:1,total:1,cost:result.costUsd,discarded:result.discarded,state:"complete" as const,model:result.model}}:{}),updatedAt:Date.now()};
           }));
         }catch{/* Keep the last known activity while the connection recovers. */}
       }));
@@ -163,10 +168,22 @@ export function EditorWorkspace({
       setNotice(action==="trash"?(en?"Book moved to Trash. You can restore it from there.":"Libro spostato nel cestino. Puoi ripristinarlo da lì."):action==="restore"?(en?"Book restored to your library.":"Libro ripristinato nella libreria."):(en?"Book permanently removed from this device’s library.":"Libro eliminato definitivamente dalla libreria di questo dispositivo."));
     }catch{setError(t("errors.STORAGE"));setSaveState("error");}finally{setChanging(false);}
   }
+  async function duplicateBook(project: ManuscriptProject) {
+    if (changing || busy || !saveAllowed.current) return;
+    setChanging(true); setError(""); setSaveState("saving");
+    try {
+      await pendingSave.current.catch(() => {});
+      const copy = duplicateProject(project, projects, en);
+      const next = [...projects, copy];
+      await saveProjects(userId, next);
+      setProjects(next); setSaveState("saved");
+    } catch { setSaveState("error"); setError(t("errors.STORAGE")); }
+    finally { setChanging(false); }
+  }
   async function renameBook() {
     const name=newName.trim();if(!bookAction||bookAction.kind!=="rename"||!name||name.length>200||changing)return;
     setChanging(true);setError("");setSaveState("saving");
-    const next=projects.map(p=>p.id===bookAction.project.id?{...p,name,updatedAt:Math.max(Date.now(),p.updatedAt+1)}:p);
+    const next=projects.map(p=>p.id===bookAction.project.id?recordHistory(p,{...p,name,metadata:p.metadata?{...p.metadata,title:name}:undefined,updatedAt:Math.max(Date.now(),p.updatedAt+1)}):p);
     try {await pendingSave.current.catch(()=>{});await saveProjects(userId,next);setProjects(next);setBookAction(null);setSaveState("saved");}
     catch{setError(t("errors.STORAGE"));setSaveState("error");}finally{setChanging(false);}
   }
@@ -202,7 +219,7 @@ export function EditorWorkspace({
     try {
       const { importManuscript } = await import("@/lib/editor/import");
       const project = await importManuscript(file);
-      setProjects((items) => [project, ...items]);
+      setProjects((items) => [ensureHistory(project), ...items]);
       setActiveId(project.id);
       setView("editor");
       setPanel("review");
@@ -282,6 +299,7 @@ export function EditorWorkspace({
             {t("library")}
             <span>{liveProjects.length}</span>
           </button>
+          <button disabled={busy||changing} className={view==="history"?"active":""} onClick={()=>{setView("history");setMobileNav(false);}}><History size={18}/>{en?"History":"Cronologia"}</button>
           <button disabled={busy||changing} className={view==="library"&&trashView?"active":""} onClick={()=>{setView("library");setTrashView(true);setSearch("");setMobileNav(false);}}><Trash2 size={18}/>{en?"Trash":"Cestino"}<span>{trashedProjects.length}</span></button>
         </nav>
         <div className="sidebar-divider" />
@@ -290,13 +308,11 @@ export function EditorWorkspace({
       </aside>
       <main className="studio-main">
         <div className="studio-global-bar">
-          <div>
-            <span className="workspace-crumb">{t("personalWorkspace")}</span>
-            <ChevronRight size={13} />
-            <span>{view === "library" ? (trashView?(en?"Trash":"Cestino"):t("library")) : t("editorLabel")}</span>
-          </div>
+          <nav className="compact-workspace-breadcrumb hexclave-private" aria-label={en?"Location":"Posizione"}>
+            {view!=="library"&&current?<><button disabled={busy||changing} onClick={()=>{setView("library");setTrashView(false);}}>{t("library")}</button><ChevronRight size={13}/><strong>{bookTitle(current)}{view==="history"?` · ${en?"History":"Cronologia"}`:""}</strong></>:<span>{trashView?(en?"Trash":"Cestino"):t("library")}</span>}
+          </nav>
           {view==="library"&&<label className="header-library-search"><Search size={15} aria-hidden="true"/><input type="search" aria-label={t("searchManuscripts")} placeholder={t("searchPlaceholder")} value={search} onChange={event=>setSearch(event.target.value)}/></label>}
-          {activeProjects.length>0&&<details className="ai-activity hexclave-private"><summary><span className="ai-orbit" aria-hidden="true"/><span role="status">{en?"AI working":"AI al lavoro"} · {activeProjects.length}</span></summary><div className="ai-activity-menu">{activeProjects.map(p=><button key={p.id} onClick={()=>openProject(p.id)}><span className="ai-dot"/><span>{p.metadata?.title||p.name}<small>{titleActivity.includes(p.id)?(en?"Generating headings":"Generazione titoli"):`${en?"Processing":"Elaborazione"} · ${Math.min(100,Math.round((p.analysis?.done||0)/Math.max(1,p.analysis?.total||1)*100))}%`}</small></span></button>)}</div></details>}
+          {activeProjects.length>0&&<details className="ai-activity hexclave-private"><summary><span className="ai-orbit" aria-hidden="true"/><span role="status">{en?"AI working":"AI al lavoro"} · {activeProjects.length}</span></summary><div className="ai-activity-menu">{activeProjects.map(p=><button key={p.id} onClick={()=>openProject(p.id)}><span className="ai-dot"/><span>{p.metadata?.title||p.name}<small>{titleActivity.includes(p.id)?(en?"Generating text":"Generazione testo"):`${en?"Processing":"Elaborazione"} · ${Math.min(100,Math.round((p.analysis?.done||0)/Math.max(1,p.analysis?.total||1)*100))}%`}</small></span></button>)}</div></details>}
           <SaveStatus state={saveState}/>
           <div className="header-account"><AuthActions showIdentity showSettings projects={projects} /></div>
         </div>
@@ -321,6 +337,8 @@ export function EditorWorkspace({
             <LoaderCircle className="animate-spin" />
             {t("loadingLibrary")}
           </div>
+        ) : view === "history" ? (
+          <HistoryPanel projects={liveProjects} activeId={activeId} onSelect={setActiveId} onOpen={openProject} locked={busy||changing||activeProjects.length>0} onRestore={(project,id)=>{setSaveState("saving");setProjects(items=>items.map(item=>item.id===project.id?restoreHistory(item,id):item));}}/>
         ) : view === "editor" && current ? (
           <ManuscriptEditor
             key={current.id}
@@ -405,7 +423,7 @@ export function EditorWorkspace({
                     </div>
                     <div className="manuscript-card-info">{activeProjects.some(p=>p.id===project.id)&&<span className="ai-card-status" role="status"><span className="ai-dot"/>{en?"AI working":"AI in elaborazione"}</span>}
                       <div>
-                        <h3 title={bookTitle(project)}>{bookTitle(project)}</h3>
+                        <h3 title={project.source?.name || project.name}>{project.source?.name || project.name}</h3>
                         <ArrowUpRight size={17} />
                       </div>
                       {project.metadata?.authors.trim()&&<p className="book-card-authors">{project.metadata.authors}</p>}
@@ -422,7 +440,7 @@ export function EditorWorkspace({
                     </div>
                   </button>
                   {!trashView&&<LibraryCardStatus project={project}/>}
-                  <LibraryCardMenu project={project} disabled={changing} onError={setError} onRename={()=>{setNewName(project.name);setBookAction({kind:"rename",project});}} onTrash={()=>setBookAction({kind:"trash",project})} onRestore={()=>void lifecycle(project.id,"restore")} onDelete={()=>setDeleteConfirm(project)}/>
+                  <LibraryCardMenu project={project} disabled={changing||busy} onError={setError} onDuplicate={()=>void duplicateBook(project)} onRename={()=>{setNewName(bookTitle(project));setBookAction({kind:"rename",project});}} onTrash={()=>setBookAction({kind:"trash",project})} onRestore={()=>void lifecycle(project.id,"restore")} onDelete={()=>setDeleteConfirm(project)}/>
                   </article>
                 ))}
               </div>
@@ -438,7 +456,7 @@ export function EditorWorkspace({
           </div>
         )}
       </main>
-      {bookAction&&<div className="studio-modal-backdrop"><section className="studio-modal hexclave-private" role="dialog" aria-modal="true" aria-labelledby="book-action-title"><h2 id="book-action-title">{bookAction.kind==="trash"?(en?"Move book to Trash?":"Spostare il libro nel cestino?"):(en?"Rename book":"Rinomina libro")}</h2><form onSubmit={event=>{event.preventDefault();if(bookAction.kind==="rename")void renameBook();else void lifecycle(bookAction.project.id,"trash");}}>{bookAction.kind==="trash"?<><p><strong>{bookTitle(bookAction.project)}</strong></p><p>{en?"It will disappear from the library. The manuscript and its revisions remain in Trash, where you can restore them.":"Scomparirà dalla libreria. Il manoscritto e le revisioni resteranno nel cestino, da cui potrai ripristinarli."}</p></>:<><label className="library-rename-field">{en?"Library name":"Nome in libreria"}<input autoFocus value={newName} maxLength={200} required onChange={e=>setNewName(e.target.value)}/></label><p>{en?"Changes the library name. The title in book metadata and the original file remain unchanged.":"Modifica il nome in libreria. Il titolo nei metadati e il file originale restano invariati."}</p></>}{error&&<p role="alert">{error}</p>}<div className="modal-actions"><button type="button" className="studio-button secondary" disabled={changing} onClick={closeBookAction}>{t("cancel")}</button><button type="submit" className="studio-button primary" disabled={changing||(bookAction.kind==="rename"&&!newName.trim())}>{bookAction.kind==="trash"?(en?"Move to Trash":"Sposta nel cestino"):(en?"Save name":"Salva nome")}</button></div></form></section></div>}
+      {bookAction&&<div className="studio-modal-backdrop"><section className="studio-modal hexclave-private" role="dialog" aria-modal="true" aria-labelledby="book-action-title"><h2 id="book-action-title">{bookAction.kind==="trash"?(en?"Move book to Trash?":"Spostare il libro nel cestino?"):(en?"Rename book":"Rinomina libro")}</h2><form onSubmit={event=>{event.preventDefault();if(bookAction.kind==="rename")void renameBook();else void lifecycle(bookAction.project.id,"trash");}}>{bookAction.kind==="trash"?<><p><strong>{bookTitle(bookAction.project)}</strong></p><p>{en?"It will disappear from the library. The manuscript and its revisions remain in Trash, where you can restore them.":"Scomparirà dalla libreria. Il manoscritto e le revisioni resteranno nel cestino, da cui potrai ripristinarli."}</p></>:<><label className="library-rename-field">{en?"Book title":"Titolo del libro"}<input autoFocus value={newName} maxLength={200} required onChange={e=>setNewName(e.target.value)}/></label><p>{en?"Updates the title in the library and book metadata.":"Aggiorna il titolo in libreria e nei dati del libro."}</p></>}{error&&<p role="alert">{error}</p>}<div className="modal-actions"><button type="button" className="studio-button secondary" disabled={changing} onClick={closeBookAction}>{t("cancel")}</button><button type="submit" className="studio-button primary" disabled={changing||(bookAction.kind==="rename"&&!newName.trim())}>{bookAction.kind==="trash"?(en?"Move to Trash":"Sposta nel cestino"):(en?"Save name":"Salva nome")}</button></div></form></section></div>}
       {deleteConfirm&&<div className="studio-modal-backdrop"><section className="studio-modal hexclave-private" role="dialog" aria-modal="true" aria-labelledby="delete-book-title"><h2 id="delete-book-title">{en?"Permanently delete this book?":"Eliminare definitivamente questo libro?"}</h2><p><strong>{bookTitle(deleteConfirm)}</strong></p><p>{en?"The manuscript, original file, metadata and revisions saved in this browser will be removed. This cannot be undone. Files you already exported are unaffected.":"Verranno rimossi il manoscritto, il file originale, i metadati e le revisioni salvati in questo browser. L’operazione non è annullabile. I file già esportati restano disponibili."}</p><div className="modal-actions"><button className="studio-button secondary" disabled={changing} onClick={closeDelete}>{t("cancel")}</button><button className="studio-button primary" disabled={changing} onClick={()=>void lifecycle(deleteConfirm.id,"delete")}>{en?"Delete permanently":"Elimina definitivamente"}</button></div></section></div>}
       {importConfirm && (
         <div className="studio-modal-backdrop">

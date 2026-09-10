@@ -56,6 +56,7 @@ function runs(node: JSONContent, typography: Typography): ParagraphChild[] {
     text: node.text || "",
     font: style.fontFamily || typography.font,
     size: fontSize(style.fontSize, typography.size),
+    highlight: marks.some(m => m.type === "userHighlight") ? "yellow" : undefined,
     bold: marks.some((m) => m.type === "bold"),
     italics: marks.some((m) => m.type === "italic"),
     strike: marks.some((m) => m.type === "strike"),
@@ -114,8 +115,10 @@ export function buildWordDocument(
   const blocks = (
     nodes: JSONContent[],
     list?: { kind: string; depth: number; instance: number },
+    inTable = false,
   ): (Paragraph | Table)[] =>
     nodes.flatMap((node) => {
+      if (node.type === "pageSection") return [new Paragraph({children:[new PageBreak()]}),...blocks(node.content||[],undefined,inTable),new Paragraph({children:[new PageBreak()]})];
       if (node.type === "table")
         return [
           new Table({
@@ -129,7 +132,7 @@ export function buildWordDocument(
                         columnSpan: Number(cell.attrs?.colspan) || 1,
                         rowSpan: Number(cell.attrs?.rowspan) || 1,
                         children: blocks(
-                          cell.content || [{ type: "paragraph" }],
+                          cell.content || [{ type: "paragraph" }], undefined, true,
                         ),
                       }),
                   ),
@@ -147,18 +150,18 @@ export function buildWordDocument(
           (item.content || []).flatMap((part, index) =>
             blocks(
               [part],
-              index === 0 || part.type?.endsWith("List") ? context : undefined,
+              index === 0 || part.type?.endsWith("List") ? context : undefined, inTable,
             ),
           ),
         );
       }
       if (node.type === "blockquote" || node.type === "listItem")
-        return blocks(node.content || [], list);
+        return blocks(node.content || [], list, inTable);
       const heading =
         node.type === "heading"
           ? Math.min(6, Math.max(1, Number(node.attrs?.level) || 1))
           : 0;
-      const align = node.attrs?.textAlign || (node.type === "paragraph" ? "justify" : "left");
+      const align = node.attrs?.textAlign || (node.type === "paragraph" && !inTable ? "justify" : "left");
       const alignment =
         align === "center"
           ? AlignmentType.CENTER
@@ -193,7 +196,7 @@ export function buildWordDocument(
           after: typography.paragraphSpacing * 20,
           line: Math.round(typography.lineHeight * 240),
         },
-        keepNext: !!heading,
+        keepNext: !!heading && typography.keepHeadingsWithNext !== false,
         ...(list?.kind === "bulletList"
           ? { bullet: { level: list.depth } }
           : {}),

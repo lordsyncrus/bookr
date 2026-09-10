@@ -1,4 +1,8 @@
 "use client";
+import { bookProfile } from "@/lib/editor/book-profile";
+import { AiContextMenu } from "./ai-context-menu";
+import { editorExtensions } from "@/lib/editor/extensions";
+import { rememberDecisions, mergeReviewFindings } from "@/lib/editorial/convergence";
 import { remapChapterReferences } from "@/lib/editor/structure-navigation";
 import { remapTitlePlan } from "@/lib/editor/title-plan";
 import {
@@ -16,7 +20,6 @@ import {
   Sparkles,
   Pause,
   Play,
-  ChevronRight,
   PanelRightClose,
   Download,
   AlertCircle,
@@ -24,7 +27,7 @@ import {
   RotateCcw,
   ListTree,
 } from "lucide-react";
-import { editorExtensions, reviewHighlightKey, structureTargetKey } from "@/lib/editor/extensions";
+import { reviewHighlightKey, structureTargetKey } from "@/lib/editor/extensions";
 import {
   countWords,
   documentOutline,
@@ -43,9 +46,8 @@ import { approvalTransaction } from "@/lib/editor/approve";
 import { closeHistory } from "@tiptap/pm/history";
 import { printPdf } from "@/lib/editor/print-pdf";
 import { exportRevisionReport } from "@/lib/editor/revision-report";
-import { EDITOR_PAGE_HEIGHT } from "@/lib/editor/pages";
 import { useDocumentPages } from "./use-document-pages";
-import { DeletePageButton } from "./delete-page-button";
+import { PageActions } from "./page-actions";
 import { PageGuides, PageNavigation } from "./page-navigation";
 import { EditorToolbar } from "./toolbar";
 import { useDialogFocus } from "./use-dialog-focus";
@@ -151,8 +153,9 @@ export function ManuscriptEditor({
     onCreate({ editor: current }) {
       onOutline(documentOutline(current.state.doc));
     },
-  });
+  }, ["continuous-recovery-v1"]);
   const documentPages = useDocumentPages(editor,!!project.contents?.enabled);
+  const reviewFresh=project.analysis?.state==="complete"&&!project.analysis.stale&&project.review?.state==="complete";
   const paused = !!project.analysis && ["paused", "error"].includes(project.analysis.state);
   const locked = running || !!paused || !!project.analysis && ["queued", "running"].includes(project.analysis.state);
   useEffect(() => {
@@ -212,7 +215,7 @@ export function ManuscriptEditor({
         if (result.version > previous.version || result.state !== previous.state) {
           const completed = result.state === "complete" && previous.state !== "complete";
           publish({ ...latest.current, analysis: { ...result, stale: previous.stale, issues: result.issues.map(issue => ({ ...issue, status: previous.issues.find(old => old.id === issue.id)?.status || issue.status })) },
-            ...(completed && !previous.stale && result.mode === "full" ? { findings: result.findings, review: { next: 1, total: 1, cost: result.costUsd, discarded: result.discarded, state: "complete" as const, model: result.model } } : {}),
+            ...(completed && !previous.stale ? { findings: mergeReviewFindings(latest.current.findings,result.findings), review: { next: 1, total: 1, cost: result.costUsd, discarded: result.discarded, state: "complete" as const, model: result.model } } : {}),
             updatedAt: Date.now() });
         }
         setRunning(["queued","running"].includes(result.state));
@@ -240,10 +243,15 @@ export function ManuscriptEditor({
     try {
       // Images are not sent to the language model. Keep nodes to preserve positions.
       const source = JSON.parse(JSON.stringify(editor.getJSON(), (key,value) => key === "src" && typeof value === "string" && value.startsWith("data:") ? "" : value));
-      const response = await fetch("/api/editorial", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobId:crypto.randomUUID(),projectId:latest.current.id,doc:source,chapterLevel:latest.current.chapterLevel || suggestedChapterLevel(editor.state.doc),locale,mode})});
+      const response = await fetch("/api/editorial", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobId:crypto.randomUUID(),projectId:latest.current.id,doc:source,chapterLevel:latest.current.chapterLevel || suggestedChapterLevel(editor.state.doc),locale,mode,editorialProfile:latest.current.metadata?.editorialProfile,decisions:rememberDecisions(latest.current,latest.current)})});
       const data = await response.json();
       if(!response.ok)throw new Error(data.error || "PROVIDER");
-      publish({...latest.current,analysis:data as AnalysisResult,updatedAt:Date.now()});
+      if(data.reused){
+        const current=latest.current;
+        const issues=(data as AnalysisResult).issues.map(issue=>({...issue,status:current.analysis?.issues.find(old=>old.id===issue.id)?.status||current.reviewDecisions?.find(d=>d.id===issue.id)?.status as typeof issue.status||issue.status}));
+        publish({...current,analysis:{...data,issues,stale:false},findings:mergeReviewFindings(current.findings,(data as AnalysisResult).findings),review:{next:1,total:1,cost:data.costUsd,discarded:data.discarded,state:"complete",model:data.model},updatedAt:Date.now()});
+        setRunning(false);
+      }else publish({...latest.current,analysis:data as AnalysisResult,updatedAt:Date.now()});
       onPanel(mode === "final" ? "structure" : "review");
     } catch(caught) {
       setRunning(false);
@@ -348,16 +356,10 @@ export function ManuscriptEditor({
     : progress?.total ? Math.round((progress.next / progress.total) * 100) : 0;
   return (
     <div className={`document-workspace workflow-workspace hexclave-private ${panel==="book"||panel==="export"?"dedicated-step":""}`} style={{"--inspector-width":`${inspectorWidth}px`} as CSSProperties}>
-      <div className="document-topbar">
-        <div className="document-breadcrumb">
-          <span>{t("manuscripts")}</span>
-          <ChevronRight size={14} />
-          <strong>{project.name}</strong>
-          <span className="document-tag">{t("draft")}</span>
-        </div>
-        <div className="document-actions"><button className="studio-button secondary" aria-expanded={outlineOpen} onClick={()=>setOutlineOpen(value=>!value)}><ListTree size={15}/>{locale==="it"?"Capitoli":"Chapters"}</button>{!panel&&<button className="studio-button secondary" onClick={()=>onPanel(lastStep)}>{locale==="it"?"Apri pannello":"Open panel"}</button>}</div>
+      <div className="workflow-navigation-row">
+        <WorkflowTabs project={project} step={panel||lastStep} onSelect={onPanel}/>
+        <div className="document-actions">{project.contents?.enabled&&<button type="button" className="studio-button secondary" onClick={()=>{if(panel==="book"||panel==="export"){onPanel("structure");requestAnimationFrame(()=>documentPages.goToPage(0));}else documentPages.goToPage(0);}}>{locale==="it"?"Indice":"Contents"}</button>}<button className="studio-button secondary" aria-expanded={outlineOpen} onClick={()=>setOutlineOpen(value=>!value)}><ListTree size={15}/>{locale==="it"?"Capitoli":"Chapters"}</button>{!panel&&<button className="studio-button secondary" onClick={()=>onPanel(lastStep)}>{locale==="it"?"Apri pannello":"Open panel"}</button>}</div>
       </div>
-      <WorkflowTabs project={project} step={panel||lastStep} onSelect={onPanel}/>
       <EditorToolbar
         editor={editor}
         typography={project.typography}
@@ -427,7 +429,6 @@ export function ManuscriptEditor({
             </section>}
             <div
               className="manuscript-paper"
-              style={{minHeight: documentPages.total * EDITOR_PAGE_HEIGHT}}
               onClick={(e) => {
                 const id = (e.target as HTMLElement)
                   .closest("[data-finding-id]")
@@ -441,7 +442,9 @@ export function ManuscriptEditor({
               }}
             >
               <EditorContent editor={editor} />
-              <PageGuides total={documentPages.total} />
+              <AiContextMenu editor={editor} projectId={project.id} profile={bookProfile(project)} locked={locked} onBusy={onBusy} onCost={cost=>publish({...latest.current,writingCost:(latest.current.writingCost??0)+cost})}/>
+              <PageGuides total={documentPages.total} offsets={documentPages.offsets} />
+              <PageActions editor={editor} total={documentPages.total} offsets={documentPages.offsets} locked={locked}/>
             </div>
             <div className="paper-end">
               <span />
@@ -481,6 +484,7 @@ export function ManuscriptEditor({
                 />
               ) : (
                 <>
+                  {reviewFresh&&<p className="review-complete-status" role="status"><Check size={16}/>{pending.length===0?(locale==="it"?"Revisione testo conclusa. Nessun nuovo passaggio necessario finché il testo non cambia.":"Text review complete. No further pass is needed until the text changes."):(locale==="it"?"Analisi completata. Valuta le proposte già disponibili.":"Analysis complete. Review the existing proposals.")}</p>}
                   <div className="revision-navigator"><button className="studio-button text" disabled={!visible.length||visible.findIndex(f=>f.id===selected)<=0} onClick={()=>{const i=visible.findIndex(f=>f.id===selected);if(i>0){focusFinding(visible[i-1]);setRevealRevision(v=>v+1);}}}>{locale==="it"?"← Precedente":"← Previous"}</button><span>{Math.max(0,visible.findIndex(f=>f.id===selected)+1)} / {visible.length}</span><button className="studio-button text" disabled={!visible.length||visible.findIndex(f=>f.id===selected)>=visible.length-1} onClick={()=>{const i=visible.findIndex(f=>f.id===selected);if(i<visible.length-1){focusFinding(visible[i+1]);setRevealRevision(v=>v+1);}}}>{locale==="it"?"Successiva →":"Next →"}</button></div>
                   <div className="review-bulk-actions">
                     <button className="studio-button primary full" disabled={locked || !pending.length} onClick={() => setApproveAllOpen(true)}><Check size={15} />{t("approveAll", {count:pending.length})}</button>
@@ -536,13 +540,13 @@ export function ManuscriptEditor({
                     ) : (
                       <button
                         className="studio-button primary full"
-                        disabled={!editor.state.doc.textContent.trim()}
+                        disabled={!editor.state.doc.textContent.trim()||reviewFresh}
                         onClick={() =>
                           paused ? void runReview() : setReviewConfirm(true)
                         }
                       >
                         {paused ? <Play size={15} /> : <Sparkles size={15} />}
-                        {paused
+                        {reviewFresh ? (locale==="it"?"Testo già controllato":"Text already checked") : paused
                           ? t("resume")
                           : progress?.state === "complete"
                             ? t("reviewAgain")
@@ -688,8 +692,6 @@ export function ManuscriptEditor({
           <span className="status-divider" />
           {t("approvedCount", { count: approved })}
         </div>
-        {project.contents?.enabled&&<button type="button" className="studio-button" onClick={()=>documentPages.goToPage(0)}>{locale==="it"?"Indice · 0":"Contents · 0"}</button>}
-        {editor&&<DeletePageButton editor={editor} current={documentPages.current} total={documentPages.total} locked={locked||documentPages.current===0}/>}
         <PageNavigation hasContents={!!project.contents?.enabled} current={documentPages.current} total={documentPages.total} onNavigate={(page) => {
           if (window.matchMedia("(max-width: 980px)").matches) {
             if (panel === "structure") setStructurePeek(true);
@@ -697,8 +699,9 @@ export function ManuscriptEditor({
           }
           documentPages.goToPage(page);
         }} />
-        <div className="document-view-settings">
+        <div className="document-view-settings"><span className="page-layout-control" title={locale==="it"?"Pagine separate temporaneamente sospese per un problema di prestazioni":"Separate pages temporarily suspended due to a performance issue"}><span>Layout</span>{locale==="it"?"Vista continua":"Continuous view"}</span>
           <span title={t("pages.hint")}>{t("pages.layout")}</span>
+
           <select
             aria-label={t("zoom")}
             value={zoom}

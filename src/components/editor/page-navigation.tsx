@@ -19,7 +19,7 @@ export function PageNavigation({current,total,onNavigate,hasContents=false}:{cur
     <span className="sr-only" role="status" aria-live="polite">{t("position",{current,total})}</span>
   </nav>;
 }
-export function PageGuides({total}:{total:number}) {
+export function PageGuides({total,offsets}:{total:number;offsets?:number[]}) {
   const t=useTranslations("editor.pages");
-  return <div className="editor-page-guides" aria-hidden="true">{Array.from({length:total},(_,index)=><div className="editor-page-guide" key={index} style={{top:index*EDITOR_PAGE_HEIGHT}}><span className="editor-page-number"><span className="page-number-prefix">{t("short")} </span>{index+1}</span></div>)}</div>;
+  return <div className="editor-page-guides" aria-hidden="true">{Array.from({length:total},(_,index)=><div className="editor-page-guide" key={index} style={{top:offsets?.[index]??index*EDITOR_PAGE_HEIGHT}}><span className="editor-page-number"><span className="page-number-prefix">{t("short")} </span>{index+1}</span></div>)}</div>;
 }

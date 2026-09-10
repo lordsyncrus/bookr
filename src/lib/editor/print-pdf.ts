@@ -28,8 +28,11 @@ export function buildPrintDocument(project:ManuscriptProject,locale:string) {
   return `<!doctype html><html lang="${locale==="en"?"en":"it"}"><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; font-src 'none'"><title>${escape(project.metadata?.title||project.name)} — PDF</title><style>
   @page { size:A4; margin:${number(type.margin,25,10,45)}mm; }
   * { box-sizing:border-box; } body { margin:0; color:#222; background:white; font-family:'${font}',Georgia,serif; font-size:${number(type.size,12,8,36)}pt; line-height:${number(type.lineHeight,1.6,1,3)}; }
+  mark.user-highlight { background:#ffed96; color:inherit; print-color-adjust:exact; }
   p { text-align:justify; margin:0 0 ${number(type.paragraphSpacing,8,0,40)}pt; orphans:3; widows:3; }
-  h1,h2,h3,h4,h5,h6 { break-after:avoid; text-align:left; line-height:1.25; margin:1.4em 0 .65em; } h1{font-size:1.8em} h2{font-size:1.45em} h3{font-size:1.25em}
+  .manuscript-added-page { break-before:page; break-after:page; min-height:1em; }
+  td p, th p { text-align:left; }
+  h1,h2,h3,h4,h5,h6 { break-after:${project.typography.keepHeadingsWithNext !== false ? "avoid" : "auto"}; text-align:left; line-height:1.25; margin:1.4em 0 .65em; } h1{font-size:1.8em} h2{font-size:1.45em} h3{font-size:1.25em}
   img { max-width:100%; height:auto; break-inside:avoid; } table { border-collapse:collapse; width:100%; table-layout:fixed; } td,th { border:1px solid #999; padding:6pt; vertical-align:top; overflow-wrap:anywhere; } thead{display:table-header-group} blockquote{border-left:2pt solid #aaa;padding-left:12pt} a { color:inherit; text-decoration:none; }
   .front,.contents { break-after:page; } .contents ol { list-style:none;padding:0; } .contents li { margin-bottom:8pt; } .front:first-child h1 { margin-top:0; }
   .print-help { font:14px/1.5 sans-serif; background:#eff3e9; padding:16px; margin-bottom:25px; } @media screen { body{max-width:794px;margin:32px auto;padding:24px} } @media print { .print-help{display:none} }

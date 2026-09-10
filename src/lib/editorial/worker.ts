@@ -5,7 +5,7 @@ import { PipelineError } from "./openrouter";
 
 export function publicResult(job: EditorialJob): AnalysisResult {
   const { jobId,version,sourceHash,state,phase,done,total,costUsd,inputTokens,outputTokens,budgetUsd,error,stale,mode,chapters,chapterNotes,memory,issues,discarded,model,createdAt,updatedAt }=job;
-  return {jobId,version,sourceHash,state,phase,done,total,costUsd,inputTokens,outputTokens,budgetUsd,error,stale,mode,chapters,chapterNotes,memory,issues,findings:state==="complete"?job.findings:[],discarded,model,createdAt,updatedAt};
+  return {inferredProfile:job.inferredProfile,jobId,version,sourceHash,state,phase,done,total,costUsd,inputTokens,outputTokens,budgetUsd,error,stale,mode,chapters,chapterNotes,memory,issues,findings:state==="complete"?job.findings:[],discarded,model,createdAt,updatedAt};
 }
 const workerGlobal = globalThis as typeof globalThis & { bookrWorker?: boolean };
 export function startEditorialWorker() {

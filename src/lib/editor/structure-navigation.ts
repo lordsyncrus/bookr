@@ -1,16 +1,23 @@
 import type { Node as PMNode } from "@tiptap/pm/model";
 import type { BookChapter } from "../editorial/types";
+const headingIndex=new WeakMap<PMNode,Map<string,{pos:number;title:string}[]>>();
 export function chapterReferences(doc: PMNode, chapter: BookChapter, stale: boolean): {pos:number;title:string}[] {
   const original = chapter.headingPos ?? chapter.from;
   if (!stale) {
     const node = doc.nodeAt(original);
     if (node && (chapter.headingPos === null || node.textContent === chapter.title)) return [{pos:original,title:chapter.title}];
   }
-  const matches: {pos:number;title:string}[] = [];
-  doc.descendants((node,pos) => {
-    if (node.type.name === "heading" && node.textContent.trim() === chapter.title.trim()) matches.push({pos,title:node.textContent});
-  });
-  return matches;
+  let index=headingIndex.get(doc);
+  if(!index){
+    index=new Map();
+    doc.descendants((node,pos)=>{
+      if(node.type.name!=="heading")return;
+      const title=node.textContent, key=title.trim();
+      index!.set(key,[...(index!.get(key)||[]),{pos,title}]);
+    });
+    headingIndex.set(doc,index);
+  }
+  return index.get(chapter.title.trim()) || [];
 }
 
 export function remapChapterReferences(chapters:BookChapter[],tr:import("@tiptap/pm/state").Transaction,stale:boolean) {

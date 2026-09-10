@@ -1,7 +1,8 @@
+import { reviewSignature } from "@/lib/editorial/convergence";
 import { getSchema } from "@tiptap/core";
 import { editorExtensions } from "@/lib/editor/extensions";
 import { authorize, boundedJson, failure, json } from "@/lib/editorial/http";
-import { readJob, sourceHash } from "@/lib/editorial/store";
+import { readJob } from "@/lib/editorial/store";
 import { callEditorialAI, PipelineError } from "@/lib/editorial/openrouter";
 import { titleCandidates, titleProposalSchema, resolveTitleProposals } from "@/lib/editorial/title-proposals";
 export const runtime="nodejs";
@@ -15,7 +16,7 @@ export async function POST(request:Request) {
     if(typeof data.jobId!=="string"||!["keep","decimal","none"].includes(data.numbering))throw new Error("INVALID_REQUEST");
     const job=await readJob(data.jobId);if(!job||job.owner!==owner)throw new Error("NOT_FOUND");
     const doc=getSchema(editorExtensions()).nodeFromJSON(data.doc);doc.check();
-    if(job.state!=="complete"||sourceHash(doc.toJSON())!==job.sourceHash)return json({error:"ANALYSIS_REQUIRED"},409);
+    if(job.state!=="complete"||reviewSignature(doc)!==reviewSignature(getSchema(editorExtensions()).nodeFromJSON(job.doc)))return json({error:"ANALYSIS_REQUIRED"},409);
     const all=titleCandidates(doc);
     const headings=all.filter(c=>c.level);
     const body=all.filter(c=>!c.level);

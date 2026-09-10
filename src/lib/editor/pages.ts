@@ -12,3 +12,9 @@ export function pageAtOffset(offset: number, total: number): number {
 export function pageScrollTop(page: number, total: number, paperTop: number, scale: number): number {
   return Math.max(0, paperTop + (clampPage(page, total) - 1) * EDITOR_PAGE_HEIGHT * scale - 12);
 }
+/** Choose the page occupying most of the viewport, not a sliver at its top. */
+export function mostVisiblePage(top:number,height:number,boundaries:number[],end:number){
+ let best=1,area=-1;
+ boundaries.forEach((start,index)=>{const overlap=Math.max(0,Math.min(top+height,boundaries[index+1]??end)-Math.max(top,start));if(overlap>area){area=overlap;best=index+1;}});
+ return best;
+}

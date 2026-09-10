@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Download, LoaderCircle, MoreHorizontal, Pencil, Trash2, RotateCcw } from "lucide-react";
+import { Download, LoaderCircle, MoreHorizontal, Copy, Pencil, Trash2, RotateCcw } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import type { ManuscriptProject } from "@/lib/editor/types";
 import { libraryStatus, libraryProgress } from "@/lib/editor/library-status";
@@ -21,7 +21,7 @@ export function LibraryCardStatus({project}:{project:ManuscriptProject}) {
   </div>;
 
 }
-export function LibraryCardMenu({project,disabled,onRename,onTrash,onRestore,onDelete,onError}:{project:ManuscriptProject;disabled:boolean;onRename:()=>void;onTrash:()=>void;onRestore:()=>void;onDelete:()=>void;onError:(message:string)=>void}) {
+export function LibraryCardMenu({project,disabled,onDuplicate,onRename,onTrash,onRestore,onDelete,onError}:{project:ManuscriptProject;disabled:boolean;onDuplicate:()=>void;onRename:()=>void;onTrash:()=>void;onRestore:()=>void;onDelete:()=>void;onError:(message:string)=>void}) {
   const locale=useLocale();const en=locale==="en";const [busy,setBusy]=useState(false);
   async function run(format:"docx"|"pdf"|"report") {
     if(busy)return;setBusy(true);onError("");
@@ -35,6 +35,6 @@ export function LibraryCardMenu({project,disabled,onRename,onTrash,onRestore,onD
   return <DropdownMenu><DropdownMenuTrigger className="library-card-menu-trigger" disabled={disabled||busy} aria-label={en?"Book actions":"Azioni del libro"} title={en?"Book actions":"Azioni del libro"}>{busy?<LoaderCircle size={19} className="animate-spin"/>:<MoreHorizontal size={21}/>}</DropdownMenuTrigger><DropdownMenuContent align="end" sideOffset={6} className="w-60 rounded-xl p-2 hexclave-private">
     {!trashed&&<><DropdownMenuItem onClick={()=>void run("docx")}><Download/>{en?"Export DOCX":"Esporta DOCX"}</DropdownMenuItem><DropdownMenuItem onClick={()=>void run("pdf")}><Download/>{en?"Export PDF":"Esporta PDF"}</DropdownMenuItem><DropdownMenuItem onClick={()=>void run("report")}><Download/>{en?"Revision report":"Elenco revisioni"}</DropdownMenuItem></>}
     <DropdownMenuItem disabled={!project.source} onClick={()=>{if(project.source)downloadBlob(project.source,project.source.name);}}><Download/>{en?"Download original":"Scarica originale"}</DropdownMenuItem><DropdownMenuSeparator/>
-    {trashed?<><DropdownMenuItem onClick={onRestore}><RotateCcw/>{en?"Restore":"Ripristina"}</DropdownMenuItem><DropdownMenuItem onClick={onDelete}><Trash2/>{en?"Delete permanently":"Elimina definitivamente"}</DropdownMenuItem></>:<><DropdownMenuItem onClick={onRename}><Pencil/>{en?"Rename":"Rinomina"}</DropdownMenuItem><DropdownMenuItem disabled={analysisActive} title={analysisActive?(en?"Complete or cancel the analysis first":"Completa o annulla prima l’analisi"):undefined} onClick={onTrash}><Trash2/>{en?"Move to Trash":"Sposta nel cestino"}</DropdownMenuItem></>}
+    {trashed?<><DropdownMenuItem onClick={onRestore}><RotateCcw/>{en?"Restore":"Ripristina"}</DropdownMenuItem><DropdownMenuItem onClick={onDelete}><Trash2/>{en?"Delete permanently":"Elimina definitivamente"}</DropdownMenuItem></>:<><DropdownMenuItem onClick={onDuplicate}><Copy/>{en?"Duplicate":"Duplica"}</DropdownMenuItem><DropdownMenuItem onClick={onRename}><Pencil/>{en?"Rename":"Rinomina"}</DropdownMenuItem><DropdownMenuItem disabled={analysisActive} title={analysisActive?(en?"Complete or cancel the analysis first":"Completa o annulla prima l’analisi"):undefined} onClick={onTrash}><Trash2/>{en?"Move to Trash":"Sposta nel cestino"}</DropdownMenuItem></>}
   </DropdownMenuContent></DropdownMenu>;
 }
