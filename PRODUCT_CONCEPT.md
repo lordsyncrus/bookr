@@ -1,593 +1,129 @@
-# AI Book Reviewer / Editor --- Product Concept
+# Bookr — Product concept
 
-## 1. Visione
+Aggiornato all’11 settembre 2026. Questo documento descrive la direzione del prodotto e distingue le funzioni disponibili dagli sviluppi previsti. Per avviare il progetto: [README](README.md). Per le attività pianificate: [TODO](TODO.md).
 
-Realizzare un servizio web di **revisione editoriale assistita da AI**
-rivolto principalmente ad autori che possiedono già un manoscritto in
-uno stadio avanzato.
+## La promessa
 
-Il prodotto **non deve scrivere il libro al posto dell'autore**.
+**Aiutare chi ha già scritto un manoscritto a revisionarlo, organizzarlo ed esportarlo, mantenendo la propria voce e il controllo delle modifiche.**
 
-Il presupposto ideale è:
+Bookr è uno studio editoriale per narrativa, saggi e manuali. Il valore è un percorso guidato che collega comprensione del libro, proposte motivate e decisioni dell’autore. Non promette una certificazione di correttezza o un libro pronto per la pubblicazione senza verifica umana.
 
-> **L'autore porta il manoscritto all'80%. Il servizio lo aiuta a
-> portarlo al 100%, fino a una versione pronta per la pubblicazione.**
+Il pubblico iniziale comprende autori indipendenti, professionisti che scrivono libri e piccoli team editoriali.
 
-L'AI deve comportarsi come un **editor professionale digitale**, non
-come un ghostwriter.
+## Principi di prodotto
 
-L'obiettivo è preservare il più possibile: - voce dell'autore; -
-stile; - intenzione narrativa; - lessico caratteristico; - struttura
-creativa originale;
+- **Default utili.** Il percorso deve funzionare con poche scelte iniziali; le opzioni avanzate restano disponibili senza diventare passaggi obbligatori.
+- **Voce dell’autore.** Correggere gli errori e i problemi concreti senza trasformare ogni peculiarità in un difetto stilistico.
+- **Decisioni esplicite.** Le proposte devono spiegare cosa cambia e perché, e portare al passaggio interessato. Gli interventi sostanziali restano sotto il controllo dell’utente.
+- **Una revisione può terminare.** Nessuna modifica necessaria è un risultato valido. I controlli successivi non devono riaprire continuamente scelte già approvate o rifiutate.
+- **Originale conservato.** Il file di partenza resta distinto dal documento modificato; cronologia e annullamento aiutano a recuperare il lavoro.
+- **Interfaccia operativa.** Dashboard compatta, fasi riconoscibili, decisioni facili da raggiungere e attività AI visibile anche dalla libreria.
 
-intervenendo invece su errori, incoerenze, debolezze e problemi
-editoriali.
+## Il percorso
 
-------------------------------------------------------------------------
+**Carica → Comprendi → Revisiona → Decidi → Verifica → Esporta**
 
-## 2. Principio fondamentale
+### 1. Libreria e importazione
 
-Il sistema deve distinguere chiaramente tra:
+L’utente importa DOCX, TXT o Markdown e ritrova i manoscritti in una libreria con avanzamento, stato di verifica e attività in corso. Le azioni rapide includono esportazione, download dell’originale, rinomina, duplicazione e spostamento nel cestino con conferma.
 
-### Correzione
+Il titolo e gli autori del libro sono dati editoriali: non coincidono necessariamente con il nome del file o con l’utente connesso.
 
-Interventi oggettivi o quasi oggettivi: - grammatica; - ortografia; -
-punteggiatura; - refusi; - concordanze; - sintassi errata; - ripetizioni
-accidentali; - errori tipografici.
+### 2. Dati del libro e comprensione
 
-### Revisione
+“Dati libro” raccoglie titolo, autori, anni, crediti e informazioni per frontespizio e colophon. Include anche un profilo editoriale modificabile: descrizione, scopo, pubblico, tipo di opera, genere, tono, registro, punto di vista, tempi verbali, ritmo, lessico e coerenza.
 
-Interventi editoriali che migliorano il testo senza cambiarne
-arbitrariamente la voce: - periodi poco leggibili; - ambiguità; -
-ridondanze; - passaggi deboli; - transizioni; - ritmo; - uniformità
-stilistica; - continuità.
+Le nuove analisi ricavano il profilo dalla memoria di lettura. Le informazioni non supportate restano vuote; le modifiche esplicite dell’utente prevalgono sui valori inferiti. Il profilo guida revisione e scrittura sulle selezioni.
 
-### Suggerimento
+### 3. Revisione e struttura
 
-Interventi soggettivi o strutturali che devono essere proposti
-all'autore, non applicati silenziosamente: - riscrittura importante di
-un paragrafo; - spostamento di sezioni; - fusione o divisione di
-capitoli; - modifica di dialoghi; - cambiamenti narrativi; -
-eliminazione di contenuti; - alterazioni significative dello stile.
+L’editor riunisce testo, formattazione e pannelli organizzati per fasi. Le proposte linguistiche mostrano originale, sostituzione e motivazione, con navigazione tra scheda e passaggio. Si possono approvare o rifiutare singolarmente o in gruppo.
 
-**Più un intervento modifica l'intenzione dell'autore, maggiore deve
-essere il controllo lasciato all'autore.**
+I controlli strutturali segnalano problemi di ordine, transizioni e coerenza; non equivalgono a riscritture automatiche. Sono disponibili rilevamento dell’indice esistente, collegamento ai titoli, generazione dell’indice e proposte di revisione dei titoli.
 
-------------------------------------------------------------------------
+La direzione UX è riutilizzare automaticamente un indice riconosciuto con sicurezza e generarne uno quando manca, chiedendo intervento sulle sole ambiguità. La maggiore robustezza del riconoscimento prima della lettura è ancora nel TODO.
 
-## 3. Esperienza utente ideale
+### 4. Interventi dell’autore
 
-### Fase 1 --- Upload
+L’utente può formattare il documento, evidenziare passaggi, aggiungere commenti e ritrovarli nelle raccolte dedicate. La cronologia è accessibile dalla sidebar.
 
-L'utente crea un progetto e carica il proprio manoscritto.
+Le azioni AI sulla selezione — scrivi, espandi, riassumi — producono una proposta da valutare prima dell’applicazione. La scrittura assistita è una scelta esplicita dell’autore.
 
-Formati inizialmente desiderabili: - DOCX; - TXT; - Markdown; - EPUB; -
-eventualmente PDF.
+### 5. Verifica ed esportazione
 
-DOCX dovrebbe essere considerato uno dei formati prioritari perché
-permette di conservare meglio struttura e formattazione.
+Il controllo finale cerca errori residui concreti e rispetta le decisioni precedenti. L’interfaccia distingue le verifiche aggiornate da quelle superate da modifiche successive.
 
-------------------------------------------------------------------------
+Sono disponibili DOCX del documento corrente, elenco delle revisioni, download dell’originale e PDF tramite stampa del browser. Frontespizio, colophon e indice sono opzioni editoriali dell’esportazione.
 
-## 4. Pre-analisi
+## Come lavora l’AI oggi
 
-Prima di iniziare la revisione, il sistema analizza il documento e
-determina almeno:
+La pipeline usa OpenRouter e richieste strutturate, senza affidarsi a una singola chiamata contenente l’intero libro:
 
--   numero di parole;
--   numero di caratteri;
--   numero di capitoli;
--   struttura individuata;
--   lingua;
--   dimensione stimata del contesto;
--   costo AI stimato;
--   tempo stimato di elaborazione;
--   tipo di revisione possibile.
+1. Identifica i capitoli dai titoli semantici del livello scelto.
+2. Divide ogni capitolo in blocchi di circa 9.000 caratteri e produce note di lettura.
+3. Riunisce le note in sintesi dei capitoli e in una memoria globale.
+4. Analizza il ruolo dei capitoli usando la mappa, la memoria e le sintesi dei capitoli vicini.
+5. Confronta fatti estratti e citazioni per cercare incoerenze tra capitoli.
+6. Propone correzioni sui blocchi usando il contesto del capitolo e il profilo del libro.
+7. Sottopone le proposte a un secondo controllo, con un modello configurabile separatamente.
 
-Questa fase deve consentire di calcolare il prezzo **prima
-dell'esecuzione**.
+Gli ancoraggi testuali vengono validati. Le rianalisi riutilizzano parte dei risultati invariati e tengono conto delle decisioni pregresse. Questo riduce ripetizioni e riscritture superflue, senza garantire una revisione esaustiva.
 
-Esempio:
+**Limiti attuali:** titoli solo visivi non sono ancora confini affidabili per la segmentazione; senza titoli semantici il testo diventa un’unica sezione suddivisa in blocchi. Il contesto ai confini e la copertura verificabile sono miglioramenti pianificati.
 
-> Manoscritto rilevato: 82.430 parole\
-> Capitoli: 24\
-> Revisione editoriale completa: €17,90
+Il rilevamento di citazioni, attribuzioni e bibliografie identifica passaggi da controllare. **Non verifica ancora le affermazioni consultando fonti esterne.**
 
-L'utente paga per la singola lavorazione.
+## Formattazione e fedeltà del documento
 
-Il modello commerciale principale non deve necessariamente essere un
-abbonamento.
+Bookr gestisce titoli, testo, elenchi, tabelle, font, spaziature e margini. Il corpo del testo può essere uniformato in giustificato, mantenendo le tabelle escluse dall’allineamento globale. L’opzione per mantenere il titolo con il testo successivo è attiva di default per gli export.
 
-------------------------------------------------------------------------
+L’editor usa attualmente una vista continua: la paginazione avanzata è sospesa per problemi di prestazioni sui manoscritti lunghi. L’import DOCX ricostruisce il contenuto modificabile ma non offre un round-trip completo di ogni funzione Word. Numeri di pagina e layout vanno verificati nell’output finale.
 
-## 5. Comprensione globale del libro
+## Salvataggio e produzione
 
-Prima di correggere le singole frasi, il sistema deve **capire il
-libro**.
+| Area | Oggi | Evoluzione prevista |
+| --- | --- | --- |
+| Libreria e documenti | IndexedDB locale, separata per utente | Database e archivio file persistenti, sincronizzazione |
+| Elaborazioni AI | Ambiente di sviluppo; worker nel processo Next, checkpoint cifrati in `.bookr-data/` | Coda persistente e worker adatti alla produzione |
+| Cronologia | Versioni locali del documento | Delta, checkpoint e caricamento progressivo per limitare lo spazio |
+| PDF | Stampa del browser | Esportazione diretta da valutare |
+| Copertura | Stato delle fasi e risultati della pipeline | Controlli tracciati per porzione, versione e regole |
 
-Deve costruire una rappresentazione strutturata contenente, quando
-applicabile:
+Il server locale deve restare acceso per eseguire i lavori. La soluzione attuale non è una coda distribuita per deploy serverless. La libreria locale non costituisce un backup cloud.
 
--   genere;
--   tono;
--   registro linguistico;
--   stile dell'autore;
--   struttura;
--   capitoli;
--   personaggi;
--   relazioni;
--   luoghi;
--   eventi;
--   timeline;
--   punti di vista;
--   temi;
--   terminologia ricorrente;
--   nomi propri;
--   regole del mondo narrativo;
--   elementi ancora aperti;
--   informazioni introdotte e successivamente richiamate.
+## Consumi e modello commerciale
 
-Questa rappresentazione costituisce una sorta di **Book Memory / Story
-Bible**.
+I consumi tecnici sono visibili nelle impostazioni e nel riepilogo dell’utente. Limiti e protezioni sono responsabilità del sistema: l’utente non deve impostare soglie di spesa per completare il percorso editoriale.
 
-Non bisogna affidarsi esclusivamente alla capacità di inserire l'intero
-manoscritto nella context window.
+Prezzi commerciali, pagamento per libro o abbonamento restano da definire. Non fanno parte del flusso attuale e non va riproposto il vecchio passaggio obbligatorio di preventivo.
 
-Anche quando il modello dispone di un contesto molto grande, è
-preferibile utilizzare una pipeline gerarchica.
+Hexclave gestisce l’identità e resta il riferimento per i servizi utente, inclusi eventuali pagamenti futuri. Le impostazioni account sono distinte dalle preferenze di Bookr.
 
-------------------------------------------------------------------------
+## Privacy
 
-## 6. Pipeline editoriale
+- Il testo necessario all’elaborazione viene inviato ai provider AI tramite OpenRouter; la configurazione del routing richiede Zero Data Retention e vieta la raccolta dati.
+- Nessun estratto, nome file o metadato editoriale deve finire nei log o negli eventi analytics.
+- I contenuti sensibili renderizzati devono essere protetti con `hexclave-private` nelle session replay.
+- L’accesso ai lavori è isolato per utente; le chiavi dei servizi restano sul server.
+- Retention, backup e cancellazione completa lato server sono requisiti della futura persistenza cloud. Il cestino della libreria non va descritto come cancellazione definitiva di ogni copia.
 
-Una possibile pipeline:
+## Prossimi passi
 
-### Pass 1 --- Parsing e struttura
+Le priorità concordate sono nel [TODO](TODO.md): riconoscimento dei capitoli prima della lettura, contesto ai confini dei blocchi e copertura verificabile. Seguono memoria strutturata con riferimenti al testo, controlli per ambito e rianalisi più mirate.
 
-Separare: - front matter; - capitoli; - sezioni; - paragrafi; -
-eventuali note.
+Una possibile evoluzione agentica è un coordinatore che prepari un piano, scelga gli strumenti necessari, attenda le decisioni e si arresti quando i controlli sono conclusi. È una direzione discussa, **non una funzione già implementata né un cambio di scope approvato**.
 
-### Pass 2 --- Analisi globale
+EPUB, materiali promozionali e integrazioni con editor esterni restano possibilità successive. Lo [studio su AuthorAgent](docs/research/authoragent-reuse.md) documenta gli spunti di riuso: non implica che tutte le sue funzioni siano presenti in Bookr.
 
-Creare: - riassunto del libro; - riassunto di ogni capitolo; - mappa dei
-personaggi; - timeline; - style profile; - story bible / knowledge base.
+## Come valutiamo il prodotto
 
-### Pass 3 --- Correzione linguistica
+Una prova su un manoscritto reale deve verificare che:
 
-Ricercare: - refusi; - errori grammaticali; - errori sintattici; -
-punteggiatura; - concordanze; - uso improprio di parole; - problemi
-tipografici.
+- tutte le porzioni previste siano elaborate o segnalate come incomplete;
+- le revisioni raggiungano il testo corretto e non si duplichino;
+- decisioni e modifiche restino recuperabili dopo chiusura e riapertura;
+- i controlli successivi convergano, senza inventare nuovi interventi per forza;
+- apertura, navigazione e modifica restino fluide su libri lunghi;
+- l’esportazione contenga il documento corrente e l’originale resti recuperabile.
 
-### Pass 4 --- Editing stilistico
-
-Analizzare: - leggibilità; - fluidità; - ripetizioni; - periodi
-eccessivamente complessi; - ridondanze; - registro; - uniformità; -
-dialoghi; - ritmo.
-
-Il sistema deve evitare di "normalizzare" eccessivamente il testo.
-
-Una costruzione insolita potrebbe essere una scelta stilistica
-dell'autore e non un errore.
-
-### Pass 5 --- Continuità
-
-Controllare il manoscritto globalmente.
-
-Esempi: - un personaggio cambia nome; - un personaggio conosce qualcosa
-che non dovrebbe ancora sapere; - un oggetto cambia colore; - un evento
-viene collocato in due date incompatibili; - un personaggio è presente
-contemporaneamente in luoghi incompatibili; - età o rapporti familiari
-cambiano; - una regola introdotta precedentemente viene contraddetta; -
-una sottotrama viene dimenticata.
-
-### Pass 6 --- Coerenza tra capitoli
-
-Verificare: - transizioni; - sequenza logica; - ripetizioni
-informative; - anticipazioni involontarie; - informazioni mancanti; -
-richiami inconsistenti; - capitoli ridondanti o sbilanciati.
-
-### Pass 7 --- Revisione strutturale
-
-Produrre suggerimenti su: - ordine dei capitoli; - capitoli troppo
-lunghi/corti; - sezioni eventualmente da fondere; - sezioni
-eventualmente da dividere; - passaggi deboli; - ritmo complessivo.
-
-Questi interventi devono normalmente essere **proposte**, non modifiche
-automatiche.
-
-### Pass 8 --- Quality Control
-
-Un agente/modello differente dovrebbe controllare il lavoro degli agenti
-precedenti.
-
-Deve chiedersi: - la correzione è realmente necessaria? - è stato
-modificato il significato? - è stata alterata la voce dell'autore? - è
-stata introdotta un'informazione inesistente? - il nuovo testo è
-realmente migliore? - la modifica crea contraddizioni altrove?
-
-### Pass 9 --- Controllo globale finale
-
-Dopo le modifiche approvate, eseguire nuovamente controlli di
-continuità, struttura e qualità sull'intero manoscritto.
-
-------------------------------------------------------------------------
-
-## 7. Revisione assistita: principio UX fondamentale
-
-Il prodotto non dovrebbe limitarsi a restituire un nuovo DOCX.
-
-La caratteristica centrale dovrebbe essere una **Review Interface**.
-
-Per ogni intervento mostrare:
-
-**Originale**
-
-> Testo originale dell'autore.
-
-**Proposta**
-
-> Testo revisionato.
-
-**Motivazione**
-
-> Periodo ambiguo; la modifica migliora la leggibilità senza alterare il
-> significato.
-
-**Categoria**
-
-> Stile / grammatica / continuità / struttura / ecc.
-
-**Confidenza**
-
-> Alta / media / bassa.
-
-Azioni:
-
--   **Approva**
--   **Rifiuta**
--   **Modifica**
--   eventualmente **Approva tutte le correzioni sicure**
-
-Il sistema deve conservare sempre l'originale.
-
-------------------------------------------------------------------------
-
-## 8. Tipologie di finding
-
-Ogni problema individuato dovrebbe essere un oggetto strutturato, ad
-esempio:
-
-``` json
-{
-  "id": "finding_00123",
-  "chapter": 7,
-  "type": "continuity",
-  "severity": "medium",
-  "confidence": 0.94,
-  "original_text": "...",
-  "suggested_text": "...",
-  "reason": "Nel capitolo 3 il personaggio afferma di non essere mai stato a Roma.",
-  "status": "pending"
-}
-```
-
-Categorie possibili:
-
--   spelling;
--   grammar;
--   punctuation;
--   typography;
--   syntax;
--   readability;
--   style;
--   repetition;
--   dialogue;
--   continuity;
--   chronology;
--   character;
--   terminology;
--   chapter_structure;
--   global_structure.
-
-------------------------------------------------------------------------
-
-## 9. Livelli di severità
-
-Distinguere almeno:
-
-### Error
-
-Problema molto probabilmente oggettivo.
-
-### Warning
-
-Possibile incoerenza o problema significativo.
-
-### Suggestion
-
-Miglioramento editoriale soggettivo.
-
-### Note
-
-Osservazione utile che non richiede necessariamente una modifica.
-
-------------------------------------------------------------------------
-
-## 10. Preservazione della voce dell'autore
-
-Questa è una delle caratteristiche più importanti del prodotto.
-
-Prima dell'editing il sistema dovrebbe costruire uno **Style Profile**
-basato sul manoscritto originale.
-
-Può includere: - lunghezza media dei periodi; - registro; - frequenza
-dei dialoghi; - uso della punteggiatura; - lessico; - livello di
-formalità; - costruzioni ricorrenti; - ritmo; - peculiarità
-intenzionali.
-
-Gli agenti di revisione devono utilizzare questo profilo come vincolo.
-
-L'obiettivo non è:
-
-> "Come lo scriverebbe un LLM?"
-
-ma:
-
-> "Come potrebbe essere corretto e migliorato questo testo continuando a
-> sembrare scritto dallo stesso autore?"
-
-------------------------------------------------------------------------
-
-## 11. Report editoriale
-
-Alla fine produrre un report con:
-
--   stato generale del manoscritto;
--   numero di errori trovati;
--   numero di suggerimenti;
--   problemi di continuità;
--   problemi strutturali;
--   statistiche;
--   capitoli più problematici;
--   valutazione della coerenza;
--   valutazione della leggibilità;
--   eventuali questioni ancora da decidere;
--   modifiche approvate/rifiutate;
--   raccomandazioni finali.
-
-Il report deve essere utile anche indipendentemente dalle correzioni
-automatiche.
-
-------------------------------------------------------------------------
-
-## 12. Output
-
-Al termine l'utente dovrebbe poter ottenere almeno:
-
--   manoscritto originale;
--   manoscritto revisionato;
--   DOCX revisionato;
--   report editoriale;
--   elenco completo delle modifiche.
-
-In seguito: - EPUB; - PDF; - eventuale output predisposto per KDP; -
-indice / table of contents; - metadati editoriali.
-
-------------------------------------------------------------------------
-
-## 13. Possibili funzioni editoriali aggiuntive
-
-Una volta terminata la revisione, il sistema potrebbe assistere nella
-produzione di:
-
--   indice;
--   sinossi;
--   abstract;
--   quarta di copertina;
--   descrizione Amazon/KDP;
--   biografia autore;
--   prefazione, quando richiesta;
--   keywords;
--   categorie editoriali;
--   metadata EPUB;
--   materiali promozionali.
-
-Queste funzioni devono rimanere separate dalla revisione del
-manoscritto.
-
-------------------------------------------------------------------------
-
-## 14. Architettura AI
-
-Il sistema dovrebbe essere **model agnostic**.
-
-OpenRouter può essere utilizzato come gateway principale.
-
-Non assumere che un unico modello debba fare tutto.
-
-È preferibile poter configurare modelli diversi per:
-
--   parsing/analisi;
--   grammar checking;
--   editing;
--   continuity;
--   reasoning strutturale;
--   quality assurance;
--   final review.
-
-L'architettura deve consentire di cambiare modello senza riscrivere la
-pipeline.
-
-------------------------------------------------------------------------
-
-## 15. Controllo dei costi
-
-Ogni job deve avere cost accounting.
-
-Registrare almeno:
-
--   modello;
--   input tokens;
--   output tokens;
--   costo;
--   durata;
--   fase;
--   capitolo;
--   eventuali retry.
-
-Prima dell'acquisto deve essere possibile stimare il costo del job.
-
-Il prezzo finale può essere:
-
-`costo AI stimato + costo infrastruttura + margine + buffer`
-
-La pipeline deve evitare di inviare inutilmente l'intero manoscritto a
-ogni chiamata.
-
-------------------------------------------------------------------------
-
-## 16. Elaborazione asincrona
-
-La revisione di un libro può richiedere tempo.
-
-Non deve essere implementata come una singola richiesta HTTP.
-
-Utilizzare:
-
--   job queue;
--   worker;
--   stato persistente;
--   retry;
--   checkpoint;
--   progress tracking.
-
-Esempio:
-
-> Analisi struttura --- completata\
-> Comprensione globale --- completata\
-> Revisione linguistica --- 17/24 capitoli\
-> Continuità --- in attesa\
-> Quality control --- in attesa
-
-Il job deve poter riprendere dopo un crash senza ricominciare tutto.
-
-------------------------------------------------------------------------
-
-## 17. Privacy
-
-Un manoscritto inedito è materiale estremamente sensibile.
-
-Principi:
-
--   cifratura in transito;
--   accesso isolato per utente;
--   niente URL pubblici ai manoscritti;
--   retention configurabile;
--   cancellazione completa del progetto;
--   logging senza contenuto sensibile quando possibile;
--   spiegazione trasparente dei provider AI utilizzati.
-
-Verificare inoltre le condizioni dei provider LLM riguardo conservazione
-e utilizzo dei dati.
-
-------------------------------------------------------------------------
-
-## 18. Posizionamento
-
-Il prodotto non dovrebbe essere presentato principalmente come:
-
-> "AI che scrive libri."
-
-Il posizionamento desiderato è:
-
-> **Servizio editoriale assistito da AI per manoscritti già scritti.**
-
-Oppure:
-
-> **Dal manoscritto alla versione pronta per la pubblicazione.**
-
-Il target iniziale può comprendere: - autori self-publishing; -
-scrittori esordienti; - professionisti che pubblicano saggi/manuali; -
-piccoli editori; - agenzie editoriali.
-
-------------------------------------------------------------------------
-
-## 19. Principio etico/editoriale
-
-Il sistema deve aumentare la qualità del lavoro umano senza appropriarsi
-della paternità creativa.
-
-L'autore deve poter sapere: - cosa è stato cambiato; - perché; - da
-quale fase; - con quale livello di certezza;
-
-e deve poter rifiutare ogni intervento.
-
-**La versione finale deve continuare a essere riconoscibilmente il libro
-dell'autore.**
-
-------------------------------------------------------------------------
-
-## 20. Relazione con AuthorAgent
-
-Valutare **AuthorAgent** come possibile base tecnica o fonte di
-componenti riutilizzabili.
-
-Prima di sviluppare da zero:
-
-1.  installare AuthorAgent in ambiente di test;
-2.  analizzarne frontend, backend e pipeline;
-3.  identificare le funzioni già disponibili;
-4.  verificare supporto OpenRouter;
-5.  verificare gestione di manoscritti esistenti;
-6.  analizzare sistema di memoria/continuità;
-7.  verificare export;
-8.  verificare licenza del repository e delle dipendenze;
-9.  identificare cosa mantenere, modificare o rimuovere.
-
-L'obiettivo non è necessariamente fare un fork indiscriminato.
-
-AuthorAgent può essere: - base del prodotto; - motore backend; -
-reference architecture; - fonte di componenti.
-
-Il prodotto finale deve però essere focalizzato sulla **revisione
-editoriale assistita**, non sulla generazione autonoma di libri.
-
-------------------------------------------------------------------------
-
-## 21. MVP
-
-Non costruire tutto immediatamente.
-
-Un MVP convincente dovrebbe fare molto bene:
-
-1.  autenticazione;
-2.  creazione progetto;
-3.  upload DOCX;
-4.  parsing capitoli;
-5.  analisi globale;
-6.  revisione grammaticale/stilistica;
-7.  controllo continuità;
-8.  interfaccia diff;
-9.  Approva / Rifiuta;
-10. export DOCX;
-11. conteggio token/costi;
-12. integrazione OpenRouter;
-13. progress tracking.
-
-Se questa esperienza funziona bene su un vero romanzo di 300--500
-pagine, il nucleo del prodotto è validato.
-
-------------------------------------------------------------------------
-
-## 22. Criterio guida per l'agente di sviluppo
-
-Quando deve decidere se implementare una feature, chiedersi:
-
-> **Questa funzione aiuta un autore che ha già scritto il proprio libro
-> a trasformare un buon manoscritto in un manoscritto editorialmente
-> pronto, mantenendo il controllo e la propria voce?**
-
-Se sì, è coerente con il prodotto.
-
-Se la funzione serve principalmente a generare automaticamente grandi
-quantità di narrativa al posto dell'autore, è secondaria o fuori scope.
+Il criterio guida rimane: **questa funzione aiuta l’autore a migliorare il proprio libro, conservandone voce e controllo?**
