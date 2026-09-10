@@ -1,3 +1,4 @@
+import { EDITORIAL_BUDGET_USD } from "@/lib/editorial/limits";
 import { getSchema } from "@tiptap/core";
 import { editorExtensions } from "@/lib/editor/extensions";
 import { bookChapters, chapterChunks } from "@/lib/editorial/chapters";
@@ -14,7 +15,7 @@ export async function POST(request:Request) {
     if(creating.has(owner))throw new Error("BUSY");creating.add(owner);acquired=true;
     if(!process.env.OPENROUTER_API_KEY)throw new Error("NOT_CONFIGURED");
     const data=await boundedJson(request,12_000_000);
-    if(typeof data.projectId!=="string"||data.projectId.length>100||typeof data.jobId!=="string"|| !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(data.jobId)||!Number.isInteger(data.chapterLevel)||data.chapterLevel<1||data.chapterLevel>6||!Number.isFinite(data.budgetUsd)||data.budgetUsd<0.25||data.budgetUsd>100)throw new Error("INVALID_REQUEST");
+    if(typeof data.projectId!=="string"||data.projectId.length>100||typeof data.jobId!=="string"|| !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(data.jobId)||!Number.isInteger(data.chapterLevel)||data.chapterLevel<1||data.chapterLevel>6)throw new Error("INVALID_REQUEST");
     const existing=await readJob(data.jobId);
     if(existing){if(existing.owner!==owner)throw new Error("NOT_FOUND");return json(publicResult(existing));}
     const doc=getSchema(editorExtensions()).nodeFromJSON(data.doc);doc.check();
@@ -31,7 +32,7 @@ export async function POST(request:Request) {
     if(chapters.length>250)throw new Error("FILE_TOO_LARGE");
     const chunks=chapterChunks(doc,chapters);
     const now=Date.now();
-    const job:EditorialJob={jobId:data.jobId,owner,projectId:data.projectId,doc:doc.toJSON(),sourceHash:sourceHash(doc.toJSON()),locale,version:1,state:"queued",phase:"reading",done:0,total:chunks.length*2+chapters.length*2+2,costUsd:0,inputTokens:0,outputTokens:0,budgetUsd:data.budgetUsd,error:null,stale:false,mode:data.mode==="final"?"final":"full",chapters,chunks,chapterNotes:[],memory:null,issues:[],findings:[],discarded:0,model:"",createdAt:now,updatedAt:now,notes:[],memoryQueue:[],memoryNext:[],phaseIndex:0,continuityGroups:[],qualityFindings:[]};
+    const job:EditorialJob={jobId:data.jobId,owner,projectId:data.projectId,doc:doc.toJSON(),sourceHash:sourceHash(doc.toJSON()),locale,version:1,state:"queued",phase:"reading",done:0,total:chunks.length*2+chapters.length*2+2,costUsd:0,inputTokens:0,outputTokens:0,budgetUsd:EDITORIAL_BUDGET_USD,error:null,stale:false,mode:data.mode==="final"?"final":"full",chapters,chunks,chapterNotes:[],memory:null,issues:[],findings:[],discarded:0,model:"",createdAt:now,updatedAt:now,notes:[],memoryQueue:[],memoryNext:[],phaseIndex:0,continuityGroups:[],qualityFindings:[]};
     await setControl(job.jobId,{desired:"run",budgetUsd:job.budgetUsd});await saveJob(job);startEditorialWorker();return json(publicResult(job),201);
   } catch(error){return failure(error);}finally{if(owner&&acquired)creating.delete(owner);}
 }

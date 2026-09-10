@@ -1,4 +1,6 @@
 "use client";
+import { useTitleActivity } from "@/lib/editor/ai-activity";
+import type { AnalysisResult } from "@/lib/editorial/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -9,14 +11,11 @@ import {
   Plus,
   Library,
   FileText,
-  ListTree,
-  SlidersHorizontal,
   ArrowUpRight,
   ShieldCheck,
   ChevronRight,
   Menu,
   X,
-  Download,
   LoaderCircle,
   ArrowLeft,
 } from "lucide-react";
@@ -24,12 +23,11 @@ import { Link } from "@/i18n/navigation";
 import { AuthActions } from "@/components/auth-actions";
 import { countWords } from "@/lib/editor/document";
 import { loadProjects, saveProjects, changeProjectLifecycle } from "@/lib/editor/storage";
-import type { ManuscriptProject, OutlineItem } from "@/lib/editor/types";
+import type { ManuscriptProject } from "@/lib/editor/types";
 import { useDialogFocus } from "./use-dialog-focus";
 import { SaveStatus } from "./save-status";
 import { LibraryCardStatus, LibraryCardMenu } from "./library-card-tools";
 import { ManuscriptEditor } from "./manuscript-editor";
-import { downloadBlob } from "@/lib/editor/export";
 
 const bookTitle = (project: ManuscriptProject) => project.metadata?.title.trim() || project.name;
 
@@ -55,8 +53,7 @@ export function EditorWorkspace({
   const [loaded, setLoaded] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [view, setView] = useState<"library" | "editor">("library");
-  const [panel, setPanel] = useState<"review" | "typography" | "book" | "structure" | null>("review");
-  const [outline, setOutline] = useState<OutlineItem[]>([]);
+  const [panel, setPanel] = useState<"review" | "typography" | "book" | "structure" | "export" | null>("review");
   const [jump, setJump] = useState<{ pos: number; at: number } | null>(null);
   const [mobileNav, setMobileNav] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -124,6 +121,32 @@ export function EditorWorkspace({
       items.map((item) => (item.id === project.id ? project : item)),
     );
   }, []);
+  const titleActivity=useTitleActivity();
+  const activeProjects=projects.filter(p=>titleActivity.includes(p.id)||["queued","running"].includes(p.analysis?.state||""));
+  const backgroundJobs=projects.filter(p=>p.analysis&&["queued","running"].includes(p.analysis.state)&&(view!=="editor"||p.id!==current?.id)).map(p=>p.analysis!.jobId).sort().join(",");
+  useEffect(()=>{
+    if(!backgroundJobs)return;
+    let disposed=false;
+    const controller=new AbortController();
+    const poll=async()=>{
+      await Promise.all(backgroundJobs.split(",").map(async id=>{
+        try{
+          const response=await fetch(`/api/editorial/${id}`,{cache:"no-store",signal:controller.signal});
+          if(!response.ok)return;
+          const result=await response.json() as AnalysisResult;
+          if(disposed)return;
+          setProjects(items=>items.map(p=>{
+            const previous=p.analysis;
+            if(previous?.jobId!==id||result.version<previous.version||(result.version===previous.version&&result.state===previous.state))return p;
+            const completed=result.state==="complete"&&previous.state!=="complete";
+            return {...p,analysis:{...result,stale:previous.stale,issues:result.issues.map(issue=>({...issue,status:previous.issues.find(old=>old.id===issue.id)?.status||issue.status}))},...(completed&&!previous.stale&&result.mode==="full"?{findings:result.findings,review:{next:1,total:1,cost:result.costUsd,discarded:result.discarded,state:"complete" as const,model:result.model}}:{}),updatedAt:Date.now()};
+          }));
+        }catch{/* Keep the last known activity while the connection recovers. */}
+      }));
+    };
+    void poll();const timer=setInterval(()=>void poll(),4000);
+    return()=>{disposed=true;controller.abort();clearInterval(timer);};
+  },[backgroundJobs]);
   const liveProjects=projects.filter(p=>!p.trashedAt);
   const trashedProjects=projects.filter(p=>!!p.trashedAt);
   const current = liveProjects.find((p) => p.id === activeId);
@@ -135,7 +158,7 @@ export function EditorWorkspace({
       await saveProjects(userId,projects);
       const next=await changeProjectLifecycle(userId,id,action);
       setProjects(next);
-      if(id===activeId&&action!=="restore"){setActiveId(null);setView("library");setOutline([]);}
+      if(id===activeId&&action!=="restore"){setActiveId(null);setView("library");}
       setDeleteConfirm(null);setBookAction(null);setSaveState("saved");
       setNotice(action==="trash"?(en?"Book moved to Trash. You can restore it from there.":"Libro spostato nel cestino. Puoi ripristinarlo da lì."):action==="restore"?(en?"Book restored to your library.":"Libro ripristinato nella libreria."):(en?"Book permanently removed from this device’s library.":"Libro eliminato definitivamente dalla libreria di questo dispositivo."));
     }catch{setError(t("errors.STORAGE"));setSaveState("error");}finally{setChanging(false);}
@@ -260,89 +283,10 @@ export function EditorWorkspace({
             <span>{liveProjects.length}</span>
           </button>
           <button disabled={busy||changing} className={view==="library"&&trashView?"active":""} onClick={()=>{setView("library");setTrashView(true);setSearch("");setMobileNav(false);}}><Trash2 size={18}/>{en?"Trash":"Cestino"}<span>{trashedProjects.length}</span></button>
-          <button
-            disabled={!current || busy}
-            className={
-              view === "editor" && panel !== "typography" && panel !== "structure" ? "active" : ""
-            }
-            onClick={() => selectView("editor", "review")}
-          >
-            <FileText size={18} />
-            {t("manuscript")}
-          </button>
-          <button
-            disabled={!current || busy}
-            className={view === "editor" && panel === "structure" ? "active" : ""}
-            onClick={() => selectView("editor", "structure")}
-          >
-            <ListTree size={18} />
-            {t("structure.tab")}
-          </button>
-          <button
-            disabled={!current || busy}
-            className={
-              view === "editor" && panel === "typography" ? "active" : ""
-            }
-            onClick={() => selectView("editor", "typography")}
-          >
-            <SlidersHorizontal size={18} />
-            {t("typographyTitle")}
-          </button>
         </nav>
         <div className="sidebar-divider" />
-        <div className="sidebar-label">
-          {view === "editor" ? t("documentOutline") : t("recentManuscripts")}
-          <span>{view === "editor" ? outline.length : liveProjects.length}</span>
-        </div>
-        <div className="sidebar-scroll">
-          {view === "editor" ? (
-            outline.length ? (
-              outline.map((item, index) => (
-                <button
-                  key={`${item.pos}-${index}`}
-                  className="outline-item"
-                  style={{ paddingLeft: 12 + Math.min(item.level - 1, 3) * 12 }}
-                  onClick={() => {
-                    setJump({ pos: item.pos, at: Date.now() });
-                    setMobileNav(false);
-                  }}
-                >
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <span>{item.title || t("untitled")}</span>
-                </button>
-              ))
-            ) : (
-              <p className="sidebar-empty">{t("outlineEmpty")}</p>
-            )
-          ) : (
-            liveProjects.slice(0, 8).map((project) => (
-              <button
-                className="recent-item"
-                key={project.id}
-                onClick={() => openProject(project.id)}
-              >
-                <BookOpen size={15} />
-                <span>{bookTitle(project)}</span>
-              </button>
-            ))
-          )}
-        </div>
-        <div className="sidebar-bottom">
-          {current && view === "editor" && (
-            <button
-              className="original-download"
-              onClick={() => {
-                if (current.source)
-                  downloadBlob(current.source, current.source.name);
-                else setNotice(t("noOriginal"));
-              }}
-            >
-              <Download size={14} />
-              {t("downloadOriginal")}
-            </button>
-          )}
-
-        </div>
+        <div className="sidebar-label">{t("recentManuscripts")}<span>{liveProjects.length}</span></div>
+        <div className="sidebar-scroll">{liveProjects.slice(0,8).map(project=><button className={`recent-item ${activeId===project.id&&view==="editor"?"active":""}`} key={project.id} onClick={()=>openProject(project.id)}><BookOpen size={15}/><span>{bookTitle(project)}</span></button>)}</div>
       </aside>
       <main className="studio-main">
         <div className="studio-global-bar">
@@ -352,8 +296,9 @@ export function EditorWorkspace({
             <span>{view === "library" ? (trashView?(en?"Trash":"Cestino"):t("library")) : t("editorLabel")}</span>
           </div>
           {view==="library"&&<label className="header-library-search"><Search size={15} aria-hidden="true"/><input type="search" aria-label={t("searchManuscripts")} placeholder={t("searchPlaceholder")} value={search} onChange={event=>setSearch(event.target.value)}/></label>}
+          {activeProjects.length>0&&<details className="ai-activity hexclave-private"><summary><span className="ai-orbit" aria-hidden="true"/><span role="status">{en?"AI working":"AI al lavoro"} · {activeProjects.length}</span></summary><div className="ai-activity-menu">{activeProjects.map(p=><button key={p.id} onClick={()=>openProject(p.id)}><span className="ai-dot"/><span>{p.metadata?.title||p.name}<small>{titleActivity.includes(p.id)?(en?"Generating headings":"Generazione titoli"):`${en?"Processing":"Elaborazione"} · ${Math.min(100,Math.round((p.analysis?.done||0)/Math.max(1,p.analysis?.total||1)*100))}%`}</small></span></button>)}</div></details>}
           <SaveStatus state={saveState}/>
-          <div className="header-account"><AuthActions showIdentity showSettings /></div>
+          <div className="header-account"><AuthActions showIdentity showSettings projects={projects} /></div>
         </div>
         {(error || saveState === "error") && (
           <div role="alert" className="studio-global-error">
@@ -383,7 +328,7 @@ export function EditorWorkspace({
             panel={panel}
             onPanel={setPanel}
             onChange={updateProject}
-            onOutline={setOutline}
+            onOutline={() => {}}
             onBusy={setBusy}
             jumpTo={jump}
           />
@@ -458,7 +403,7 @@ export function EditorWorkspace({
                       <span className="cover-rule" />
                       <span className="cover-monogram" aria-hidden="true">{project.metadata?.title.trim()?.[0] || "b."}</span>
                     </div>
-                    <div className="manuscript-card-info">
+                    <div className="manuscript-card-info">{activeProjects.some(p=>p.id===project.id)&&<span className="ai-card-status" role="status"><span className="ai-dot"/>{en?"AI working":"AI in elaborazione"}</span>}
                       <div>
                         <h3 title={bookTitle(project)}>{bookTitle(project)}</h3>
                         <ArrowUpRight size={17} />

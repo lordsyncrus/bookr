@@ -93,7 +93,7 @@
     "eyebrow": "Il tuo studio editoriale",
     "title": "Bentornato.",
     "titleNamed": "Bentornato, {name}.",
-    "subtitle": "Carica una nuova bozza: analizzeremo struttura e dimensione prima di proporti tempi, tipo di revisione e costo.",
+    "subtitle": "Carica una nuova bozza: analizzeremo struttura e dimensione prima di proporti tempi e tipo di revisione.",
     "newProject": "Nuovo manoscritto",
     "dropTitle": "Trascina qui il tuo manoscritto",
     "formats": "DOCX, TXT, Markdown o EPUB · massimo 50 MB",
@@ -171,7 +171,7 @@
     "errors": {
       "NOT_CONFIGURED": "Chiave OpenRouter non configurata. Riavvia il server di sviluppo.",
       "API_KEY": "OpenRouter non accetta la chiave configurata.",
-      "CREDITS": "Credito OpenRouter insufficiente.",
+      "CREDITS": "Servizio AI temporaneamente non disponibile. Contatta il supporto.",
       "BUSY": "Una revisione è già in corso o il provider è occupato. Riprova tra poco.",
       "UNAUTHORIZED": "Accedi nuovamente per continuare.",
       "PROVIDER": "Revisione non completata. Riprova; controlla modello e disponibilità OpenRouter se il problema persiste.",
@@ -331,7 +331,7 @@
       "EXPORT": "Esportazione non riuscita. Alcune immagini potrebbero avere un formato non supportato; verifica il documento e riprova.",
       "NOT_CONFIGURED": "Chiave OpenRouter non configurata. Riavvia il server dopo averla aggiunta.",
       "API_KEY": "La chiave OpenRouter non è valida.",
-      "CREDITS": "Credito OpenRouter esaurito. Puoi riprendere dopo averlo ricaricato.",
+      "CREDITS": "Servizio AI temporaneamente non disponibile. Contatta il supporto.",
       "BUSY": "C’è già una revisione attiva. Apri il relativo manoscritto per metterla in pausa o interromperla.",
       "UNAUTHORIZED": "La sessione è scaduta. Accedi nuovamente.",
       "PROVIDER": "Il blocco non è stato completato. I risultati precedenti sono salvati: premi Riprendi per riprovare.",
@@ -374,7 +374,7 @@
     "wholeBookDescription": "Lettura completa, mappa dei capitoli, coerenza tra le sezioni e revisione linguistica con un secondo controllo delle proposte.",
     "wholeBookConsent": "Il testo completo verrà inviato a OpenRouter per lettura, sintesi, analisi strutturale e revisione. L’avanzamento viene salvato in forma cifrata sul server locale di sviluppo. Le proposte restano da approvare.",
     "budget": "Limite di spesa (USD)",
-    "serverContinues": "La lavorazione continua con il server di sviluppo acceso, anche chiudendo la scheda. Il costo può includere una riserva prudenziale per richieste interrotte.",
+    "serverContinues": "La lavorazione continua con il server di sviluppo acceso, anche chiudendo la scheda.",
     "jobConnection": "Connessione temporaneamente assente. Riprovo a recuperare l’avanzamento.",
     "phases": {
       "reading": "Lettura delle sezioni",
@@ -387,10 +387,10 @@
       "complete": "Analisi completata"
     },
     "jobErrors": {
-      "BUDGET": "Limite raggiunto: aumenta il budget e riprendi.",
+      "BUDGET": "Lavorazione sospesa dal limite di servizio. Contatta il supporto.",
       "INVALID_RESPONSE": "Risposta non valida. Puoi riprendere dall’ultimo passaggio salvato.",
       "NOT_CONFIGURED": "Configura la chiave OpenRouter.",
-      "CREDITS": "Credito OpenRouter esaurito.",
+      "CREDITS": "Servizio AI temporaneamente non disponibile. Contatta il supporto.",
       "API_KEY": "Chiave OpenRouter non valida."
     },
     "structure": {

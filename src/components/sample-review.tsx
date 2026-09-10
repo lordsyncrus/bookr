@@ -39,7 +39,7 @@ export function SampleReview({ file }: { file: File }) {
     <div aria-live="polite">{busy && <p className="mt-3 text-sm text-ink/60">{t("wait")}</p>}</div>
     {error && <p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
     {result && <div className="mt-5 space-y-5">
-      <p className="text-sm text-ink/60">{t("coverage", { count: result.sample.length, total: result.totalCharacters })} · {result.model}{result.costUsd !== null && ` · ${new Intl.NumberFormat(locale, { style: "currency", currency: "USD", minimumFractionDigits: 4 }).format(result.costUsd)}`}</p>
+      <p className="text-sm text-ink/60">{t("coverage", { count: result.sample.length, total: result.totalCharacters })} · {result.model}</p>
       {result.discarded > 0 && <p role="status" className="text-sm text-ink/60">{t("discarded", { count: result.discarded })}</p>}
       {!result.findings.length && <p>{t("empty")}</p>}
       {result.findings.map((finding, index) => <article key={index} className="rounded-xl border border-ink/15 p-5">

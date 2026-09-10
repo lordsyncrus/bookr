@@ -1,4 +1,5 @@
 "use client";
+import { setTitleActivity } from "@/lib/editor/ai-activity";
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import type { Editor } from "@tiptap/react";
@@ -11,7 +12,7 @@ export function TitlePlanPanel({project,editor,locked,onChange,onFinal,onNavigat
   const plan=project.titlePlan;const ready=project.analysis?.state==="complete"&&!project.analysis.stale;
   const pending=plan?.items.filter(p=>p.status==="pending"&&titleTarget(editor.state.doc,p))||[];
   async function generate() {
-    if(busy||locked)return;setBusy(true);setError("");
+    if(busy||locked)return;setBusy(true);setTitleActivity(project.id,true);setError("");
     const source=JSON.parse(JSON.stringify(editor.getJSON(),(key,value)=>key==="src"&&typeof value==="string"&&value.startsWith("data:")?"":value));
     const snapshot=JSON.stringify(editor.getJSON());
     try {
@@ -29,12 +30,12 @@ export function TitlePlanPanel({project,editor,locked,onChange,onFinal,onNavigat
       INVALID_RESPONSE:["Il modello non ha restituito una proposta completa nel formato richiesto. Puoi riprovare.","The model did not return a complete valid proposal. You can retry."],
       TIMEOUT:["Il modello non ha risposto entro il tempo limite. Puoi riprovare.","The model timed out. You can retry."],
       TimeoutError:["La richiesta ha superato il tempo limite. Puoi riprovare.","The request timed out. You can retry."],
-      CREDITS:["Credito OpenRouter insufficiente.","Insufficient OpenRouter credits."],
+      CREDITS:["Servizio AI temporaneamente non disponibile. Contatta il supporto.","AI service temporarily unavailable. Contact support."],
       API_KEY:["La chiave OpenRouter non è valida.","The OpenRouter key is invalid."],
       BUSY:["Una generazione è già in corso o il provider è occupato. Attendi e riprova.","Generation is already running or the provider is busy. Wait and retry."],
       PROVIDER_REQUEST:["OpenRouter ha rifiutato il formato della richiesta. La configurazione del modello richiede una correzione.","OpenRouter rejected the request format. The model configuration needs correction."],
       PROVIDER:["Connessione a OpenRouter non riuscita. Puoi riprovare.","Could not connect to OpenRouter. You can retry."]
-    };setError((messages[code]||["Generazione non riuscita. Codice: "+(code||"UNKNOWN"),"Generation failed. Code: "+(code||"UNKNOWN")])[en?1:0]);}finally{setBusy(false);}
+    };setError((messages[code]||["Generazione non riuscita. Codice: "+(code||"UNKNOWN"),"Generation failed. Code: "+(code||"UNKNOWN")])[en?1:0]);}finally{setBusy(false);setTitleActivity(project.id,false);}
   }
   function approve(ids:string[]) {
     if(locked||busy||!plan)return;
@@ -47,9 +48,9 @@ export function TitlePlanPanel({project,editor,locked,onChange,onFinal,onNavigat
     {ready&&!plan&&<p role="status">{en?"Structural analysis complete. Now generate the proposed contents below; no contents have been created yet.":"Analisi strutturale completata. Ora genera la proposta qui sotto: l’indice non è ancora stato creato."}</p>}
     <label>{en?"Numbering":"Numerazione"}<select value={numbering} disabled={busy||locked} onChange={e=>setNumbering(e.target.value)}><option value="keep">{en?"Keep current convention":"Mantieni convenzione attuale"}</option><option value="decimal">{en?"Hierarchical · 1, 1.1, 1.2":"Gerarchica · 1, 1.1, 1.2"}</option><option value="none">{en?"No numbering":"Senza numerazione"}</option></select></label>
     <button className="studio-button primary full" disabled={!ready||locked||busy||!!plan} onClick={()=>void generate()}><Sparkles size={15}/>{busy?(en?"Preparing proposal…":"Preparazione proposta…"):(en?"Generate proposal":"Genera proposta")}</button>
-    <small>{en?"Additional AI call, at most $1.20 per attempt. Keep this panel open while it runs.":"Chiamata AI aggiuntiva, massimo 1,20 $ per tentativo. Mantieni aperto questo pannello durante la generazione."}</small>
+    <small>{en?"Keep this panel open while the proposal is generated.":"Mantieni aperto questo pannello durante la generazione."}</small>
     {error&&<p role="alert">{error}</p>}
-    {plan&&<>{!!plan.discarded&&<p role="status">{en?`${plan.discarded} invalid proposals were excluded. The valid proposals are shown below; this plan needs review.`:`${plan.discarded} proposte non valide escluse. Qui sotto trovi quelle verificate: il piano richiede una revisione.`}</p>}<div className="title-plan-actions"><strong>{en?`${pending.length} to review`:`${pending.length} da valutare`}</strong><span>${plan.cost.toFixed(4)}</span></div><p>{en?"Approvals also enable the linked contents in DOCX export. Use Undo in the editor to reverse an approval.":"Le approvazioni attivano anche l’indice collegato nell’esportazione DOCX. Usa Annulla nell’editor per annullare un’approvazione."}</p>
+    {plan&&<>{!!plan.discarded&&<p role="status">{en?`${plan.discarded} invalid proposals were excluded. The valid proposals are shown below; this plan needs review.`:`${plan.discarded} proposte non valide escluse. Qui sotto trovi quelle verificate: il piano richiede una revisione.`}</p>}<div className="title-plan-actions"><strong>{en?`${pending.length} to review`:`${pending.length} da valutare`}</strong></div><p>{en?"Approvals also enable the linked contents in DOCX export. Use Undo in the editor to reverse an approval.":"Le approvazioni attivano anche l’indice collegato nell’esportazione DOCX. Usa Annulla nell’editor per annullare un’approvazione."}</p>
     {pending.length>0&&<button className="studio-button full" disabled={locked||busy} onClick={()=>setConfirm(true)}>{en?"Approve all headings":"Approva tutti i titoli"} ({pending.length})</button>}
     {confirm&&<div className="title-plan-notice" role="group" aria-label={en?"Confirm approval":"Conferma approvazione"}><p>{en?`Apply ${pending.length} changes to your manuscript?`:`Applicare ${pending.length} modifiche al manoscritto?`}</p><button className="studio-button primary" disabled={locked||busy} onClick={()=>approve(pending.map(p=>p.id))}>{en?"Apply all":"Applica tutte"}</button><button className="studio-button" onClick={()=>setConfirm(false)}>{en?"Cancel":"Annulla"}</button></div>}
     {!plan.items.length&&<p>{en?"No heading changes are needed.":"Non sono state proposte modifiche ai titoli."}</p>}

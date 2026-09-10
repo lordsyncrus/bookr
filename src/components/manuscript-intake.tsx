@@ -6,7 +6,6 @@ import {
   BookOpenText,
   Check,
   Clock3,
-  Coins,
   FileText,
   FileUp,
   Languages,
@@ -153,7 +152,6 @@ export function ManuscriptIntake() {
 function PreflightResult({ result, locale, onReset }: { result: ManuscriptPreflight; locale: string; onReset: () => void }) {
   const t = useTranslations("intake");
   const number = new Intl.NumberFormat(locale);
-  const currency = new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" });
   const language = result.metrics.language === "undetermined" ? t("undetermined") : t(`languages.${result.metrics.language}`);
 
   return (
@@ -177,15 +175,6 @@ function PreflightResult({ result, locale, onReset }: { result: ManuscriptPrefli
       </div>
 
       <div className="mt-5 grid gap-4 rounded-2xl border border-ink/10 p-5 md:grid-cols-[1fr_auto] md:items-center">
-        <div>
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink"><Coins className="size-4 text-coral" />{t("aiBudget")}</div>
-          <p className="mt-2 font-serif text-3xl font-semibold text-ink">
-            {currency.format(result.estimate.aiCostEur.min)}–{currency.format(result.estimate.aiCostEur.max)}
-          </p>
-          <p className="mt-1 text-xs leading-5 text-ink/45">
-            {t("budgetNote", { tokens: number.format(result.estimate.pipelineTokens) })}
-          </p>
-        </div>
         <div className="flex flex-wrap gap-2 md:max-w-64 md:justify-end">
           {result.reviewTypes.map((type) => <Badge key={type} variant="outline">{t(`reviewTypes.${type}`)}</Badge>)}
         </div>

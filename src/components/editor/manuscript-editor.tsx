@@ -22,9 +22,7 @@ import {
   AlertCircle,
   FileCheck2,
   RotateCcw,
-  SlidersHorizontal,
   ListTree,
-  BookOpen,
 } from "lucide-react";
 import { editorExtensions, reviewHighlightKey, structureTargetKey } from "@/lib/editor/extensions";
 import {
@@ -52,6 +50,7 @@ import { PageGuides, PageNavigation } from "./page-navigation";
 import { EditorToolbar } from "./toolbar";
 import { useDialogFocus } from "./use-dialog-focus";
 import { BookMetadataPanel } from "./book-metadata-panel";
+import { WorkflowTabs, InspectorResizer, type WorkflowStep } from "./workflow-tabs";
 import { TypographyPanel } from "./typography-panel";
 
 export function ManuscriptEditor({
@@ -64,8 +63,8 @@ export function ManuscriptEditor({
   jumpTo,
 }: {
   project: ManuscriptProject;
-  panel: "review" | "typography" | "book" | "structure" | null;
-  onPanel: (panel: "review" | "typography" | "book" | "structure" | null) => void;
+  panel: "review" | "typography" | "book" | "structure" | "export" | null;
+  onPanel: (panel: "review" | "typography" | "book" | "structure" | "export" | null) => void;
   onChange: (project: ManuscriptProject) => void;
   onOutline: (outline: OutlineItem[]) => void;
   onBusy: (busy: boolean) => void;
@@ -78,20 +77,22 @@ export function ManuscriptEditor({
   const busyCallback = useRef(onBusy);
   const [running, setRunning] = useState(false);
   const runningRef = useRef(false);
-  const [budget, setBudget] = useState(project.analysis?.budgetUsd || 5);
   const [stopping, setStopping] = useState(false);
   const [error, setError] = useState("");
   const findingCards = useRef(new Map<string, HTMLElement>());
   const [revealRevision, setRevealRevision] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"pending" | "all">("pending");
+  const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | "stale" | "all">("pending");
   const [exporting, setExporting] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [approveAllOpen, setApproveAllOpen] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [reviewConfirm, setReviewConfirm] = useState(false);
+  const [inspectorWidth,setInspectorWidth]=useState(460);
+  const [outlineOpen,setOutlineOpen]=useState(false);
+  const [lastStep,setLastStep]=useState<WorkflowStep>(panel||"review");
   const [structurePeek, setStructurePeek] = useState(false);
-  const onPanel = (next: typeof panel) => { setStructurePeek(false); changePanel(next); };
+  const onPanel = (next: typeof panel) => { setStructurePeek(false); if(next)setLastStep(next); changePanel(next); };
   const [zoom, setZoom] = useState(100);
   const closeDialogs = useCallback(() => {
     setReviewConfirm(false);
@@ -228,7 +229,7 @@ export function ManuscriptEditor({
     if (!analysis) return;
     setError("");setStopping(true);
     try {
-      const response = await fetch(`/api/editorial/${analysis.jobId}`, { method: "PATCH", headers: { "Content-Type":"application/json" }, body: JSON.stringify({desired,budgetUsd:budget}) });
+      const response = await fetch(`/api/editorial/${analysis.jobId}`, { method: "PATCH", headers: { "Content-Type":"application/json" }, body: JSON.stringify({desired}) });
       if (!response.ok) throw new Error("PROVIDER");
     } catch { setError(t("errors.PROVIDER"));setStopping(false); }
   }
@@ -239,7 +240,7 @@ export function ManuscriptEditor({
     try {
       // Images are not sent to the language model. Keep nodes to preserve positions.
       const source = JSON.parse(JSON.stringify(editor.getJSON(), (key,value) => key === "src" && typeof value === "string" && value.startsWith("data:") ? "" : value));
-      const response = await fetch("/api/editorial", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobId:crypto.randomUUID(),projectId:latest.current.id,doc:source,chapterLevel:latest.current.chapterLevel || suggestedChapterLevel(editor.state.doc),locale,mode,budgetUsd:budget})});
+      const response = await fetch("/api/editorial", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobId:crypto.randomUUID(),projectId:latest.current.id,doc:source,chapterLevel:latest.current.chapterLevel || suggestedChapterLevel(editor.state.doc),locale,mode})});
       const data = await response.json();
       if(!response.ok)throw new Error(data.error || "PROVIDER");
       publish({...latest.current,analysis:data as AnalysisResult,updatedAt:Date.now()});
@@ -339,14 +340,14 @@ export function ManuscriptEditor({
     (f) => f.status === "approved",
   ).length;
   const visible = project.findings.filter(
-    (f) => filter === "all" || f.status === "pending",
+    (f) => filter === "all" || f.status === filter,
   );
   const progress = project.review;
   const percent = project.analysis?.mode === "full"
     ? project.analysis.state === "complete" ? 100 : Math.min(99, Math.round(project.analysis.done / Math.max(1,project.analysis.total) * 100))
     : progress?.total ? Math.round((progress.next / progress.total) * 100) : 0;
   return (
-    <div className="document-workspace hexclave-private">
+    <div className={`document-workspace workflow-workspace hexclave-private ${panel==="book"||panel==="export"?"dedicated-step":""}`} style={{"--inspector-width":`${inspectorWidth}px`} as CSSProperties}>
       <div className="document-topbar">
         <div className="document-breadcrumb">
           <span>{t("manuscripts")}</span>
@@ -354,36 +355,16 @@ export function ManuscriptEditor({
           <strong>{project.name}</strong>
           <span className="document-tag">{t("draft")}</span>
         </div>
-        <div className="document-actions">
-          <button className="studio-button secondary" aria-label={t("bookData.title")} aria-pressed={panel === "book"} onClick={() => onPanel(panel === "book" ? null : "book")}>
-            <BookOpen size={15} /><span>{t("bookData.title")}</span>
-          </button>
-          <button
-            className="studio-button secondary"
-            aria-label={t("review")}
-            onClick={() => onPanel(panel === "review" ? null : "review")}
-          >
-            <Sparkles size={15} />
-            <span>{t("review")}</span>
-            {pending.length > 0 && <b>{pending.length}</b>}
-          </button>
-          <button
-            className="studio-button primary"
-            aria-label={t("export")}
-            onClick={() => setExportOpen(true)}
-            disabled={running}
-          >
-            <Download size={15} />
-            <span>{t("export")}</span>
-          </button>
-        </div>
+        <div className="document-actions"><button className="studio-button secondary" aria-expanded={outlineOpen} onClick={()=>setOutlineOpen(value=>!value)}><ListTree size={15}/>{locale==="it"?"Capitoli":"Chapters"}</button>{!panel&&<button className="studio-button secondary" onClick={()=>onPanel(lastStep)}>{locale==="it"?"Apri pannello":"Open panel"}</button>}</div>
       </div>
+      <WorkflowTabs project={project} step={panel||lastStep} onSelect={onPanel}/>
       <EditorToolbar
         editor={editor}
         typography={project.typography}
         locked={locked}
       />
-      <div className={`document-body ${panel ? "with-inspector" : ""}`}>
+      <div id="workflow-panel" role="tabpanel" aria-labelledby={`workflow-${panel||lastStep}`} className={`document-body ${panel ? "with-inspector" : ""}`}>
+        {outlineOpen&&<nav className="workflow-outline hexclave-private" aria-label={t("documentOutline")}><header><strong>{t("documentOutline")}</strong><button aria-label={t("close")} onClick={()=>setOutlineOpen(false)}><X size={16}/></button></header>{documentOutline(editor.state.doc).map(item=><button key={item.pos} style={{paddingLeft:12+(item.level-1)*10}} onClick={()=>{onPanel(null);setOutlineOpen(false);focusStructure(item.pos);}}>{item.title}</button>)}</nav>}
         <div className="document-canvas">
           {project.importNotice && (
             <div className="import-notice">
@@ -469,47 +450,17 @@ export function ManuscriptEditor({
             </div>
           </div>
         </div>
+        {panel&&panel!=="book"&&panel!=="export"&&<InspectorResizer width={inspectorWidth} onResize={setInspectorWidth}/>}
         {panel && (
           <aside className={`document-inspector ${structurePeek && panel === "structure" ? "is-peeking" : ""}`} aria-label={t("inspector")}>
-            <div className="inspector-tabs">
-              <button
-                className={panel === "review" ? "active" : ""}
-                onClick={() => onPanel("review")}
-              >
-                <Sparkles size={15} />
-                {t("review")}
-              </button>
-              <button
-                className={panel === "structure" ? "active" : ""}
-                aria-pressed={panel === "structure"}
-                onClick={() => onPanel("structure")}
-              >
-                <ListTree size={15} />
-                {t("structure.tab")}
-              </button>
-              <button
-                className={panel === "typography" ? "active" : ""}
-                onClick={() => onPanel("typography")}
-              >
-                <SlidersHorizontal size={15} />
-                {t("format")}
-              </button>
-              <button
-                title={t("closePanel")}
-                aria-label={t("closePanel")}
-                onClick={() => onPanel(null)}
-              >
-                <PanelRightClose size={16} />
-              </button>
-            </div>
+            <div className="workflow-panel-heading"><strong>{panel==="review"?t("review"):panel==="structure"?t("structure.tab"):panel==="book"?t("bookData.title"):panel==="export"?t("export"):t("format")}</strong><button title={t("closePanel")} aria-label={t("closePanel")} onClick={()=>onPanel(null)}><PanelRightClose size={17}/></button></div>
             <div className="inspector-scroll">
-              {panel === "book" ? (
+              {panel === "export" ? <section className="workflow-export"><span className="small-overline">{locale==="it"?"Il tuo libro, pronto da portare con te":"Your book, ready to take with you"}</span><h2>{t("exportTitle")}</h2><p>{t("exportDescription")}</p><div className="workflow-export-summary"><span><strong>{approved}</strong>{t("approved")}</span><span><strong>{pending.length}</strong>{t("stillPending")}</span><span><strong>{percent}%</strong>{t("aiCoverage")}</span></div>{(pending.length>0||project.analysis?.stale)&&<p className="modal-note">{t("exportIncomplete")}</p>}<div className="workflow-export-formats"><button className="studio-button primary" disabled={exporting||running} onClick={()=>void exportDocument()}><Download size={18}/>{exporting?t("exporting"):t("downloadDocx")}</button><button className="studio-button secondary" disabled={exporting||running} onClick={()=>void exportPdf()}>PDF</button><button className="studio-button secondary" disabled={reporting} onClick={()=>void exportReport()}>{t("exportReport")}</button></div><p className="modal-note">{locale==="it"?"PDF: scegli Salva come PDF nella finestra di stampa. I numeri di pagina dell’indice vengono ricalcolati da Word nell’esportazione DOCX.":"PDF: choose Save as PDF in the print dialog. Word recalculates contents page numbers in DOCX."}</p>{error&&<p role="alert">{error}</p>}</section> : panel === "book" ? (
                 <BookMetadataPanel project={project} onChange={(metadata) => publish({ ...latest.current, metadata, updatedAt: Date.now() })} />
               ) : panel === "structure" ? (
                 <>
                   <EditorialBookPanel project={project} editor={editor} locked={locked} onChange={publish} onFinal={() => void runReview("final")} onNavigate={focusStructure} />
                   <div className="structure-controls">
-                    <label className="budget-field">{t("budget")}<input type="number" min="0.25" max="100" step="0.25" value={budget} onChange={event => setBudget(Number(event.target.value))} /></label>
                     {project.analysis && <p role="status">{t(`phases.${project.analysis.phase}`)} · {project.analysis.done}/{project.analysis.total}</p>}
                     {locked && <button className="studio-button secondary full" onClick={() => onPanel("review")}>{t("structure.manageAnalysis")}</button>}
                     {error && <p role="alert" className="studio-error">{error}</p>}
@@ -530,11 +481,12 @@ export function ManuscriptEditor({
                 />
               ) : (
                 <>
+                  <div className="revision-navigator"><button className="studio-button text" disabled={!visible.length||visible.findIndex(f=>f.id===selected)<=0} onClick={()=>{const i=visible.findIndex(f=>f.id===selected);if(i>0){focusFinding(visible[i-1]);setRevealRevision(v=>v+1);}}}>{locale==="it"?"← Precedente":"← Previous"}</button><span>{Math.max(0,visible.findIndex(f=>f.id===selected)+1)} / {visible.length}</span><button className="studio-button text" disabled={!visible.length||visible.findIndex(f=>f.id===selected)>=visible.length-1} onClick={()=>{const i=visible.findIndex(f=>f.id===selected);if(i<visible.length-1){focusFinding(visible[i+1]);setRevealRevision(v=>v+1);}}}>{locale==="it"?"Successiva →":"Next →"}</button></div>
                   <div className="review-bulk-actions">
                     <button className="studio-button primary full" disabled={locked || !pending.length} onClick={() => setApproveAllOpen(true)}><Check size={15} />{t("approveAll", {count:pending.length})}</button>
                     <button className="studio-button secondary full" disabled={reporting} onClick={() => void exportReport()}><Download size={15} />{reporting ? t("exporting") : t("exportReport")}</button>
                   </div>
-                  <div className="review-overview">
+                  <details className="review-overview" open={running||!project.analysis}><summary>{locale==="it"?"Analisi e avanzamento":"Analysis and progress"}</summary>
                     <div className="review-overview-heading">
                       <span className="inspector-symbol">
                         <FileCheck2 size={21} />
@@ -554,7 +506,6 @@ export function ManuscriptEditor({
                     {project.analysis && <p role="status">{t(`phases.${project.analysis.phase}`)} · {project.analysis.done}/{project.analysis.total}
                       {project.analysis.error && <strong className="studio-error">{t.has(`jobErrors.${project.analysis.error}`) ? t(`jobErrors.${project.analysis.error}`) : t("errors.PROVIDER")}</strong>}
                     </p>}
-                    <label className="budget-field">{t("budget")}<input type="number" min="0.25" max="100" step="0.25" value={budget} onChange={event => setBudget(Number(event.target.value))} /></label>
                     {(progress || project.analysis) && (
                       <div className="review-progress">
                         <div>
@@ -585,7 +536,7 @@ export function ManuscriptEditor({
                     ) : (
                       <button
                         className="studio-button primary full"
-                        disabled={!editor.state.doc.textContent.trim() || budget < 0.25 || budget > 100}
+                        disabled={!editor.state.doc.textContent.trim()}
                         onClick={() =>
                           paused ? void runReview() : setReviewConfirm(true)
                         }
@@ -598,13 +549,13 @@ export function ManuscriptEditor({
                             : t("reviewAll")}
                       </button>
                     )}
-                    {project.analysis && <small className="review-cost">${project.analysis.costUsd.toFixed(4)} · {t("serverContinues")}</small>}
+                    {project.analysis && <small className="review-cost">{t("serverContinues")}</small>}
                     {!project.analysis && progress?.model && (
                       <small className="review-cost">
-                        {progress.model} · ${progress.cost.toFixed(4)}
+                        {progress.model}
                       </small>
                     )}
-                  </div>
+                  </details>
                   {error && (
                     <div className="studio-error" role="alert">
                       <AlertCircle size={16} />
@@ -619,10 +570,11 @@ export function ManuscriptEditor({
                       aria-label={t("filterSuggestions")}
                       value={filter}
                       onChange={(e) =>
-                        setFilter(e.target.value as "pending" | "all")
+                        setFilter(e.target.value as typeof filter)
                       }
                     >
                       <option value="pending">{t("pending")}</option>
+                      <option value="approved">{t("approved")}</option><option value="rejected">{t("rejected")}</option><option value="stale">{t("stale")}</option>
                       <option value="all">{t("all")}</option>
                     </select>
                   </div>

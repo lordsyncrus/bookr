@@ -5,6 +5,8 @@ import { CircleUserRound, LogIn, LogOut, Sparkles, Settings } from "lucide-react
 import { useHexclaveApp, useUser } from "@hexclave/next";
 import { useLocale, useTranslations } from "next-intl";
 
+import { PreferencesModal } from "@/components/account/preferences-modal";
+import type { ManuscriptProject } from "@/lib/editor/types";
 import { AccountSettingsModal } from "@/components/account/account-settings-modal";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,11 +18,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function AuthActions({showIdentity=false, showSettings=false}:{showIdentity?:boolean;showSettings?:boolean}) {
+export function AuthActions({showIdentity=false, showSettings=false, projects=[]}:{showIdentity?:boolean;showSettings?:boolean;projects?:ManuscriptProject[]}) {
   const app = useHexclaveApp();
   const user = useUser();
   const t = useTranslations("nav");
   const en=useLocale()==="en";
+  const [preferencesOpen,setPreferencesOpen]=useState(false);
   const [settingsOpen,setSettingsOpen]=useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -39,7 +42,9 @@ export function AuthActions({showIdentity=false, showSettings=false}:{showIdenti
   return (
     <div className="flex items-center gap-2">
       {error ? <span className="hidden text-xs text-destructive sm:block">{error}</span> : null}
-      {user && showSettings && <span title={en?"User preferences — coming soon":"Preferenze utente — prossimamente"}><button type="button" disabled aria-label={en?"User preferences — coming soon":"Preferenze utente — prossimamente"} className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-ink/35 cursor-not-allowed"><Settings size={18}/></button></span>}
+      {user && showSettings && <button type="button" onClick={()=>setPreferencesOpen(true)} aria-label={en?"User preferences":"Preferenze utente"} className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-ink/60 hover:bg-ink/5"><Settings size={18}/></button>}
+      {user&&preferencesOpen&&<PreferencesModal projects={projects} onClose={()=>setPreferencesOpen(false)}/>}
+
       {user ? (
         <DropdownMenu>
           <DropdownMenuTrigger

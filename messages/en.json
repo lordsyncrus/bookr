@@ -93,7 +93,7 @@
     "eyebrow": "Your editorial studio",
     "title": "Welcome back.",
     "titleNamed": "Welcome back, {name}.",
-    "subtitle": "Upload a new draft. We will assess its structure and size before proposing timing, review type and cost.",
+    "subtitle": "Upload a new draft. We will assess its structure and size before proposing timing and review type.",
     "newProject": "New manuscript",
     "dropTitle": "Drop your manuscript here",
     "formats": "DOCX, TXT, Markdown or EPUB · up to 50 MB",
@@ -171,7 +171,7 @@
     "errors": {
       "NOT_CONFIGURED": "OpenRouter key is not configured. Restart the development server.",
       "API_KEY": "OpenRouter rejected the configured key.",
-      "CREDITS": "Insufficient OpenRouter credit.",
+      "CREDITS": "AI service temporarily unavailable. Contact support.",
       "BUSY": "A review is already running or the provider is busy. Try again shortly.",
       "UNAUTHORIZED": "Sign in again to continue.",
       "PROVIDER": "Review could not complete. Try again; check your model and OpenRouter availability if this persists.",
@@ -331,7 +331,7 @@
       "EXPORT": "Export failed. Some images may use an unsupported format; check your document and try again.",
       "NOT_CONFIGURED": "OpenRouter key not configured. Restart the server after adding it.",
       "API_KEY": "The OpenRouter key is not valid.",
-      "CREDITS": "OpenRouter credit exhausted. Resume after adding credit.",
+      "CREDITS": "AI service temporarily unavailable. Contact support.",
       "BUSY": "Another review is active. Open its manuscript to pause or stop it.",
       "UNAUTHORIZED": "Your session expired. Sign in again.",
       "PROVIDER": "This block could not complete. Earlier results are saved: press Resume to try again.",
@@ -374,7 +374,7 @@
     "wholeBookDescription": "Full reading, chapter map, cross-section consistency and language editing with a second check of proposals.",
     "wholeBookConsent": "The full text is sent to OpenRouter for reading, summaries, structural analysis and editing. Progress is encrypted on the local development server. Proposals remain subject to approval.",
     "budget": "Spending limit (USD)",
-    "serverContinues": "Processing continues while the development server is running, even with this tab closed. Cost may include a conservative reserve for interrupted requests.",
+    "serverContinues": "Processing continues while the development server is running, even with this tab closed.",
     "jobConnection": "Connection interrupted. Retrying progress retrieval.",
     "phases": {
       "reading": "Reading sections",
@@ -387,10 +387,10 @@
       "complete": "Analysis complete"
     },
     "jobErrors": {
-      "BUDGET": "Limit reached: increase the budget and resume.",
+      "BUDGET": "Processing paused by the service limit. Contact support.",
       "INVALID_RESPONSE": "Invalid response. Resume from the last saved step.",
       "NOT_CONFIGURED": "Configure the OpenRouter key.",
-      "CREDITS": "OpenRouter credits exhausted.",
+      "CREDITS": "AI service temporarily unavailable. Contact support.",
       "API_KEY": "Invalid OpenRouter key."
     },
     "structure": {
