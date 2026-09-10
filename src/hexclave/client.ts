@@ -6,6 +6,7 @@ export const hexclaveClientApp = new HexclaveClientApp({
     default: {
       type: "hosted",
     },
+    accountSettings: { type: "custom", url: "/account-settings", version: 1 },
     signUp: {
       type: "custom",
       url: "/sign-up",
@@ -17,6 +18,9 @@ export const hexclaveClientApp = new HexclaveClientApp({
     home: "/",
   },
   analytics: {
+    // SDK click capture includes target.textContent even inside replay-blocked
+    // subtrees. Disable automatic capture to protect unpublished manuscripts.
+    enabled: false,
     replays: {
       maskAllInputs: true,
       blockSelector: ".hexclave-private",

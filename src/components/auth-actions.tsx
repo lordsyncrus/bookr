@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { CircleUserRound, LogIn, LogOut, Sparkles } from "lucide-react";
+import { CircleUserRound, LogIn, LogOut, Sparkles, Settings } from "lucide-react";
 import { useHexclaveApp, useUser } from "@hexclave/next";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
+import { AccountSettingsModal } from "@/components/account/account-settings-modal";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -15,10 +16,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function AuthActions() {
+export function AuthActions({showIdentity=false, showSettings=false}:{showIdentity?:boolean;showSettings?:boolean}) {
   const app = useHexclaveApp();
   const user = useUser();
   const t = useTranslations("nav");
+  const en=useLocale()==="en";
+  const [settingsOpen,setSettingsOpen]=useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -36,15 +39,17 @@ export function AuthActions() {
   return (
     <div className="flex items-center gap-2">
       {error ? <span className="hidden text-xs text-destructive sm:block">{error}</span> : null}
+      {user && showSettings && <span title={en?"User preferences — coming soon":"Preferenze utente — prossimamente"}><button type="button" disabled aria-label={en?"User preferences — coming soon":"Preferenze utente — prossimamente"} className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-ink/35 cursor-not-allowed"><Settings size={18}/></button></span>}
       {user ? (
         <DropdownMenu>
           <DropdownMenuTrigger
             type="button"
             disabled={pending}
             aria-label={`${t("account")}: ${user.displayName || user.primaryEmail || "Bookr"}`}
-            className="inline-flex size-11 items-center justify-center rounded-full p-0 outline-none transition-colors hover:bg-coral/10 focus-visible:ring-3 focus-visible:ring-coral/30 data-popup-open:bg-coral/10"
+            className={`inline-flex items-center rounded-full outline-none transition-colors hover:bg-coral/10 focus-visible:ring-3 focus-visible:ring-coral/30 data-popup-open:bg-coral/10 ${showIdentity?"gap-3 py-1 pr-3 text-left max-w-full":"size-11 justify-center p-0"}`}
           >
             <UserAvatar user={user} />
+            {showIdentity&&<span className="min-w-0 truncate text-sm font-medium">{user.displayName?.trim() || t("account")}</span>}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={8} className="w-64 rounded-xl p-2">
             <div className="flex items-center gap-3 px-2 py-2.5">
@@ -59,7 +64,7 @@ export function AuthActions() {
               </span>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="px-2 py-2" onClick={() => run(() => app.redirectToAccountSettings())}>
+            <DropdownMenuItem className="px-2 py-2" onClick={() => setSettingsOpen(true)}>
               <CircleUserRound />
               {t("accountSettings")}
             </DropdownMenuItem>
@@ -81,6 +86,7 @@ export function AuthActions() {
           </Button>
         </>
       )}
+      {user&&settingsOpen&&<AccountSettingsModal open={settingsOpen} onOpenChange={setSettingsOpen}/>}
     </div>
   );
 }

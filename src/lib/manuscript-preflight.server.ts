@@ -15,7 +15,7 @@ const ENGLISH_MARKERS = new Set([
   "the", "and", "that", "with", "for", "was", "were", "not", "from", "this", "have", "had", "his", "her", "but", "into", "about", "would",
 ]);
 
-export async function analyseManuscript(file: File): Promise<ManuscriptPreflight> {
+export async function extractManuscript(file: File): Promise<string> {
   const extension = getExtension(file.name);
   const buffer = Buffer.from(await file.arrayBuffer());
   const text = extension === "docx"
@@ -27,6 +27,12 @@ export async function analyseManuscript(file: File): Promise<ManuscriptPreflight
     throw new ManuscriptPreflightError("EMPTY_MANUSCRIPT");
   }
 
+  return normalized;
+}
+
+export async function analyseManuscript(file: File): Promise<ManuscriptPreflight> {
+  const extension = getExtension(file.name);
+  const normalized = await extractManuscript(file);
   const words = normalized.match(WORD_PATTERN) ?? [];
   const chapterHeadings = normalized
     .split("\n")

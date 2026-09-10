@@ -21,6 +21,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SampleReview } from "@/components/sample-review";
 import { cn } from "@/lib/utils";
 import { MAX_MANUSCRIPT_BYTES, type ManuscriptPreflight, type PreflightError } from "@/lib/manuscript-types";
 
@@ -33,17 +34,21 @@ type IntakeState =
 export function ManuscriptIntake() {
   const t = useTranslations("intake");
   const locale = useLocale();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const submitting = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [state, setState] = useState<IntakeState>({ status: "idle" });
 
   async function submit(file: File | undefined) {
-    if (!file) return;
+    if (!file || submitting.current) return;
+    setSelectedFile(null);
     if (file.size > MAX_MANUSCRIPT_BYTES) {
       setState({ status: "error", message: t("errors.FILE_TOO_LARGE") });
       return;
     }
 
+    submitting.current = true;
     setState({ status: "analysing", fileName: file.name });
     const formData = new FormData();
     formData.set("manuscript", file);
@@ -62,15 +67,18 @@ export function ManuscriptIntake() {
         return;
       }
 
+      setSelectedFile(file);
       setState({ status: "ready", result: payload });
     } catch {
       setState({ status: "error", message: t("errors.PARSE_FAILED") });
     } finally {
+      submitting.current = false;
       if (inputRef.current) inputRef.current.value = "";
     }
   }
 
   function reset() {
+    setSelectedFile(null);
     setState({ status: "idle" });
   }
 
@@ -85,7 +93,10 @@ export function ManuscriptIntake() {
       </CardHeader>
       <CardContent>
         {state.status === "ready" ? (
-          <PreflightResult result={state.result} locale={locale} onReset={reset} />
+          <>
+            <PreflightResult result={state.result} locale={locale} onReset={reset} />
+            {process.env.NODE_ENV === "development" && selectedFile && <SampleReview file={selectedFile} />}
+          </>
         ) : (
           <div
             className={cn(
