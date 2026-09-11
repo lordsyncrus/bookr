@@ -1,129 +1,129 @@
 # Bookr — Product concept
 
-Aggiornato all’11 settembre 2026. Questo documento descrive la direzione del prodotto e distingue le funzioni disponibili dagli sviluppi previsti. Per avviare il progetto: [README](README.md). Per le attività pianificate: [TODO](TODO.md).
+Updated September 11, 2026. This document describes the product direction and distinguishes available features from planned work. For setup, see the [README](README.md). For planned tasks, see the [TODO](TODO.md).
 
-## La promessa
+## The promise
 
-**Aiutare chi ha già scritto un manoscritto a revisionarlo, organizzarlo ed esportarlo, mantenendo la propria voce e il controllo delle modifiche.**
+**Help people who already have a manuscript review, organize, and export it while keeping their voice and control over changes.**
 
-Bookr è uno studio editoriale per narrativa, saggi e manuali. Il valore è un percorso guidato che collega comprensione del libro, proposte motivate e decisioni dell’autore. Non promette una certificazione di correttezza o un libro pronto per la pubblicazione senza verifica umana.
+Bookr is an editorial studio for fiction, nonfiction, and practical guides. Its value is a guided workflow that connects an understanding of the book with explained suggestions and author decisions. It does not promise certified correctness or a publication-ready book without human review.
 
-Il pubblico iniziale comprende autori indipendenti, professionisti che scrivono libri e piccoli team editoriali.
+The initial audience includes independent authors, professionals writing books, and small editorial teams.
 
-## Principi di prodotto
+## Product principles
 
-- **Default utili.** Il percorso deve funzionare con poche scelte iniziali; le opzioni avanzate restano disponibili senza diventare passaggi obbligatori.
-- **Voce dell’autore.** Correggere gli errori e i problemi concreti senza trasformare ogni peculiarità in un difetto stilistico.
-- **Decisioni esplicite.** Le proposte devono spiegare cosa cambia e perché, e portare al passaggio interessato. Gli interventi sostanziali restano sotto il controllo dell’utente.
-- **Una revisione può terminare.** Nessuna modifica necessaria è un risultato valido. I controlli successivi non devono riaprire continuamente scelte già approvate o rifiutate.
-- **Originale conservato.** Il file di partenza resta distinto dal documento modificato; cronologia e annullamento aiutano a recuperare il lavoro.
-- **Interfaccia operativa.** Dashboard compatta, fasi riconoscibili, decisioni facili da raggiungere e attività AI visibile anche dalla libreria.
+- **Useful defaults.** The workflow should require few initial choices. Advanced options remain available without becoming mandatory steps.
+- **The author’s voice.** Fix errors and concrete problems without treating every distinctive trait as a stylistic flaw.
+- **Explicit decisions.** Suggestions should explain what changes and why, and link to the relevant passage. Substantial interventions remain under user control.
+- **A review can finish.** No changes needed is a valid outcome. Later checks must not continually reopen accepted or rejected decisions.
+- **Preserve the original.** Keep the source file separate from the edited document; history and undo help recover work.
+- **An interface for getting work done.** A compact dashboard, recognizable stages, accessible decisions, and AI activity visible from the library too.
 
-## Il percorso
+## The workflow
 
-**Carica → Comprendi → Revisiona → Decidi → Verifica → Esporta**
+**Upload → Understand → Review → Decide → Verify → Export**
 
-### 1. Libreria e importazione
+### 1. Library and import
 
-L’utente importa DOCX, TXT o Markdown e ritrova i manoscritti in una libreria con avanzamento, stato di verifica e attività in corso. Le azioni rapide includono esportazione, download dell’originale, rinomina, duplicazione e spostamento nel cestino con conferma.
+Users import DOCX, TXT, or Markdown and find their manuscripts in a library showing progress, review status, and ongoing activity. Quick actions include export, original download, rename, duplicate, and moving to the trash with confirmation.
 
-Il titolo e gli autori del libro sono dati editoriali: non coincidono necessariamente con il nome del file o con l’utente connesso.
+A book’s title and authors are editorial metadata: they do not necessarily match the filename or the signed-in user.
 
-### 2. Dati del libro e comprensione
+### 2. Book details and understanding
 
-“Dati libro” raccoglie titolo, autori, anni, crediti e informazioni per frontespizio e colophon. Include anche un profilo editoriale modificabile: descrizione, scopo, pubblico, tipo di opera, genere, tono, registro, punto di vista, tempi verbali, ritmo, lessico e coerenza.
+Book details include title, authors, years, credits, and information for the title page and colophon. They also include an editable editorial profile: description, purpose, audience, work type, genre, tone, register, point of view, tense, rhythm, vocabulary, and consistency.
 
-Le nuove analisi ricavano il profilo dalla memoria di lettura. Le informazioni non supportate restano vuote; le modifiche esplicite dell’utente prevalgono sui valori inferiti. Il profilo guida revisione e scrittura sulle selezioni.
+New analyses derive this profile from reading memory. Unsupported information stays blank; explicit user edits override inferred values. The profile guides both review and writing on selected passages.
 
-### 3. Revisione e struttura
+### 3. Review and structure
 
-L’editor riunisce testo, formattazione e pannelli organizzati per fasi. Le proposte linguistiche mostrano originale, sostituzione e motivazione, con navigazione tra scheda e passaggio. Si possono approvare o rifiutare singolarmente o in gruppo.
+The editor combines text, formatting, and panels organized by stage. Language suggestions show the original, replacement, and explanation, with navigation between the suggestion and its passage. Users can accept or reject them individually or in bulk.
 
-I controlli strutturali segnalano problemi di ordine, transizioni e coerenza; non equivalgono a riscritture automatiche. Sono disponibili rilevamento dell’indice esistente, collegamento ai titoli, generazione dell’indice e proposte di revisione dei titoli.
+Structural checks flag issues with order, transitions, and consistency; they do not automatically rewrite the book. Existing table-of-contents detection, heading links, table-of-contents generation, and heading revision proposals are available.
 
-La direzione UX è riutilizzare automaticamente un indice riconosciuto con sicurezza e generarne uno quando manca, chiedendo intervento sulle sole ambiguità. La maggiore robustezza del riconoscimento prima della lettura è ancora nel TODO.
+The intended UX is to automatically reuse a confidently recognized table of contents and generate one when missing, asking users to resolve only ambiguities. More robust recognition before reading remains in the TODO.
 
-### 4. Interventi dell’autore
+### 4. Author interventions
 
-L’utente può formattare il documento, evidenziare passaggi, aggiungere commenti e ritrovarli nelle raccolte dedicate. La cronologia è accessibile dalla sidebar.
+Users can format the document, highlight passages, add comments, and find annotations in dedicated collections. History is accessible from the sidebar.
 
-Le azioni AI sulla selezione — scrivi, espandi, riassumi — producono una proposta da valutare prima dell’applicazione. La scrittura assistita è una scelta esplicita dell’autore.
+AI selection actions—write, expand, summarize—produce a proposal to review before applying it. Assisted writing is an explicit author choice.
 
-### 5. Verifica ed esportazione
+### 5. Verification and export
 
-Il controllo finale cerca errori residui concreti e rispetta le decisioni precedenti. L’interfaccia distingue le verifiche aggiornate da quelle superate da modifiche successive.
+The final check looks for concrete remaining errors and respects previous decisions. The interface distinguishes current checks from those made outdated by later edits.
 
-Sono disponibili DOCX del documento corrente, elenco delle revisioni, download dell’originale e PDF tramite stampa del browser. Frontespizio, colophon e indice sono opzioni editoriali dell’esportazione.
+Available outputs include a DOCX of the current document, a revision list, the original file, and PDF through browser printing. Title page, colophon, and table of contents are editorial export options.
 
-## Come lavora l’AI oggi
+## How AI works today
 
-La pipeline usa OpenRouter e richieste strutturate, senza affidarsi a una singola chiamata contenente l’intero libro:
+The pipeline uses OpenRouter and structured requests rather than relying on one call containing the entire book:
 
-1. Identifica i capitoli dai titoli semantici del livello scelto.
-2. Divide ogni capitolo in blocchi di circa 9.000 caratteri e produce note di lettura.
-3. Riunisce le note in sintesi dei capitoli e in una memoria globale.
-4. Analizza il ruolo dei capitoli usando la mappa, la memoria e le sintesi dei capitoli vicini.
-5. Confronta fatti estratti e citazioni per cercare incoerenze tra capitoli.
-6. Propone correzioni sui blocchi usando il contesto del capitolo e il profilo del libro.
-7. Sottopone le proposte a un secondo controllo, con un modello configurabile separatamente.
+1. Identify chapters from semantic headings at the selected level.
+2. Split each chapter into blocks of roughly 9,000 characters and produce reading notes.
+3. Combine notes into chapter summaries and a global book memory.
+4. Analyze chapter roles using the outline, memory, and neighboring chapter summaries.
+5. Compare extracted facts and quotations to look for inconsistencies across chapters.
+6. Propose corrections within blocks using chapter context and the book profile.
+7. Run a second check on proposals, with a separately configurable model.
 
-Gli ancoraggi testuali vengono validati. Le rianalisi riutilizzano parte dei risultati invariati e tengono conto delle decisioni pregresse. Questo riduce ripetizioni e riscritture superflue, senza garantire una revisione esaustiva.
+Text anchors are validated. Repeat analyses reuse some unchanged results and account for past decisions. This reduces repetition and unnecessary rewriting without guaranteeing an exhaustive review.
 
-**Limiti attuali:** titoli solo visivi non sono ancora confini affidabili per la segmentazione; senza titoli semantici il testo diventa un’unica sezione suddivisa in blocchi. Il contesto ai confini e la copertura verificabile sono miglioramenti pianificati.
+**Current limitations:** visually styled headings are not yet reliable segmentation boundaries. Without semantic headings, the text becomes one section divided into blocks. Context across block boundaries and verifiable coverage are planned improvements.
 
-Il rilevamento di citazioni, attribuzioni e bibliografie identifica passaggi da controllare. **Non verifica ancora le affermazioni consultando fonti esterne.**
+Citation, attribution, and bibliography detection identifies passages to check. **It does not yet verify claims against external sources.**
 
-## Formattazione e fedeltà del documento
+## Formatting and document fidelity
 
-Bookr gestisce titoli, testo, elenchi, tabelle, font, spaziature e margini. Il corpo del testo può essere uniformato in giustificato, mantenendo le tabelle escluse dall’allineamento globale. L’opzione per mantenere il titolo con il testo successivo è attiva di default per gli export.
+Bookr supports headings, body text, lists, tables, fonts, spacing, and margins. Body text can be uniformly justified while keeping tables excluded from global alignment. The option to keep headings with the following text is enabled by default for exports.
 
-L’editor usa attualmente una vista continua: la paginazione avanzata è sospesa per problemi di prestazioni sui manoscritti lunghi. L’import DOCX ricostruisce il contenuto modificabile ma non offre un round-trip completo di ogni funzione Word. Numeri di pagina e layout vanno verificati nell’output finale.
+The editor currently uses a continuous view: advanced pagination is suspended because of performance problems with long manuscripts. DOCX import reconstructs editable content but does not provide a complete round trip for every Word feature. Page numbers and layout need checking in the final output.
 
-## Salvataggio e produzione
+## Storage and production
 
-| Area | Oggi | Evoluzione prevista |
+| Area | Today | Planned direction |
 | --- | --- | --- |
-| Libreria e documenti | IndexedDB locale, separata per utente | Database e archivio file persistenti, sincronizzazione |
-| Elaborazioni AI | Ambiente di sviluppo; worker nel processo Next, checkpoint cifrati in `.bookr-data/` | Coda persistente e worker adatti alla produzione |
-| Cronologia | Versioni locali del documento | Delta, checkpoint e caricamento progressivo per limitare lo spazio |
-| PDF | Stampa del browser | Esportazione diretta da valutare |
-| Copertura | Stato delle fasi e risultati della pipeline | Controlli tracciati per porzione, versione e regole |
+| Library and documents | Local IndexedDB, separated by user | Persistent database and file storage, synchronization |
+| AI processing | Development mode; worker inside the Next process, encrypted checkpoints in `.bookr-data/` | Persistent queue and workers suitable for production |
+| History | Local document versions | Deltas, checkpoints, and progressive loading to limit storage use |
+| PDF | Browser printing | Direct export to evaluate |
+| Coverage | Stage status and pipeline results | Checks tracked by text range, version, and rules |
 
-Il server locale deve restare acceso per eseguire i lavori. La soluzione attuale non è una coda distribuita per deploy serverless. La libreria locale non costituisce un backup cloud.
+The local server must stay running to execute jobs. The current implementation is not a distributed queue for serverless deployments. The local library is not a cloud backup.
 
-## Consumi e modello commerciale
+## Usage and business model
 
-I consumi tecnici sono visibili nelle impostazioni e nel riepilogo dell’utente. Limiti e protezioni sono responsabilità del sistema: l’utente non deve impostare soglie di spesa per completare il percorso editoriale.
+Technical usage costs are visible in settings and the user summary. Limits and safeguards are the system’s responsibility: users should not need to set spending thresholds to complete the editorial workflow.
 
-Prezzi commerciali, pagamento per libro o abbonamento restano da definire. Non fanno parte del flusso attuale e non va riproposto il vecchio passaggio obbligatorio di preventivo.
+Commercial pricing, per-book payments, and subscriptions remain undecided. They are not part of the current workflow, and the old mandatory quote step should not be reintroduced.
 
-Hexclave gestisce l’identità e resta il riferimento per i servizi utente, inclusi eventuali pagamenti futuri. Le impostazioni account sono distinte dalle preferenze di Bookr.
+Hexclave manages identity and remains the preferred platform for user-facing services, including potential future payments. Account settings are separate from Bookr preferences.
 
 ## Privacy
 
-- Il testo necessario all’elaborazione viene inviato ai provider AI tramite OpenRouter; la configurazione del routing richiede Zero Data Retention e vieta la raccolta dati.
-- Nessun estratto, nome file o metadato editoriale deve finire nei log o negli eventi analytics.
-- I contenuti sensibili renderizzati devono essere protetti con `hexclave-private` nelle session replay.
-- L’accesso ai lavori è isolato per utente; le chiavi dei servizi restano sul server.
-- Retention, backup e cancellazione completa lato server sono requisiti della futura persistenza cloud. Il cestino della libreria non va descritto come cancellazione definitiva di ogni copia.
+- Text needed for processing is sent to AI providers through OpenRouter; routing requires Zero Data Retention and disallows data collection.
+- No excerpts, filenames, or editorial metadata may appear in logs or analytics events.
+- Rendered sensitive content must be protected with `hexclave-private` in session replays.
+- Job access is isolated by user; service keys stay on the server.
+- Retention, backups, and complete server-side deletion are requirements for future cloud persistence. The library trash must not be described as permanently deleting every copy.
 
-## Prossimi passi
+## Next steps
 
-Le priorità concordate sono nel [TODO](TODO.md): riconoscimento dei capitoli prima della lettura, contesto ai confini dei blocchi e copertura verificabile. Seguono memoria strutturata con riferimenti al testo, controlli per ambito e rianalisi più mirate.
+Agreed priorities are in the [TODO](TODO.md): chapter recognition before reading, context across block boundaries, and verifiable coverage. These are followed by structured memory with source references, checks scoped to their purpose, and more targeted reanalysis.
 
-Una possibile evoluzione agentica è un coordinatore che prepari un piano, scelga gli strumenti necessari, attenda le decisioni e si arresti quando i controlli sono conclusi. È una direzione discussa, **non una funzione già implementata né un cambio di scope approvato**.
+A possible agentic evolution is a coordinator that prepares a plan, selects tools, waits for decisions, and stops when checks are complete. This is a discussed direction, **not an implemented feature or an approved scope change**.
 
-EPUB, materiali promozionali e integrazioni con editor esterni restano possibilità successive. Lo [studio su AuthorAgent](docs/research/authoragent-reuse.md) documenta gli spunti di riuso: non implica che tutte le sue funzioni siano presenti in Bookr.
+EPUB, promotional materials, and integrations with external editors remain later possibilities. The [AuthorAgent study](docs/research/authoragent-reuse.md) documents reuse opportunities; it does not imply that all its features are present in Bookr.
 
-## Come valutiamo il prodotto
+## How we evaluate the product
 
-Una prova su un manoscritto reale deve verificare che:
+A trial with a real manuscript should verify that:
 
-- tutte le porzioni previste siano elaborate o segnalate come incomplete;
-- le revisioni raggiungano il testo corretto e non si duplichino;
-- decisioni e modifiche restino recuperabili dopo chiusura e riapertura;
-- i controlli successivi convergano, senza inventare nuovi interventi per forza;
-- apertura, navigazione e modifica restino fluide su libri lunghi;
-- l’esportazione contenga il documento corrente e l’originale resti recuperabile.
+- every expected section is processed or marked incomplete;
+- revisions point to the correct text and are not duplicated;
+- decisions and changes remain recoverable after closing and reopening;
+- subsequent checks converge without inventing new work;
+- opening, navigating, and editing remain responsive with long books;
+- exports contain the current document and the original remains recoverable.
 
-Il criterio guida rimane: **questa funzione aiuta l’autore a migliorare il proprio libro, conservandone voce e controllo?**
+The guiding question remains: **does this feature help authors improve their own book while preserving their voice and control?**

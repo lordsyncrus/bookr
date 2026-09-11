@@ -1,54 +1,54 @@
 # Bookr
 
-Uno studio editoriale per trasformare una bozza in un libro, con l’AI al tuo fianco e l’ultima parola sempre tua.
+An editorial studio for turning your draft into a book—with AI by your side and the final say always yours.
 
-**Carica → Analizza → Valuta le revisioni → Esporta**
+**Upload → Analyze → Review changes → Export**
 
-## Cosa puoi fare
+## What you can do
 
-- **Lavora sul manoscritto.** Importa DOCX, TXT o Markdown; modifica testo, titoli, tabelle e formattazione nell’editor.
-- **Revisiona con contesto.** L’AI legge per capitoli e blocchi, costruisce una memoria del libro e propone interventi su lingua, struttura e coerenza. Puoi approvarli o rifiutarli, anche in gruppo.
-- **Organizza il libro.** Rileva un indice esistente o generane uno, sistema i titoli e individua possibili citazioni e riferimenti da verificare.
-- **Conserva la tua voce.** In “Dati libro” raccogli autori, crediti, colophon e profilo editoriale: tono, pubblico, genere e terminologia.
-- **Annota e riscrivi.** Evidenzia passaggi, aggiungi commenti e usa scrittura, espansione e sintesi AI sulla selezione. Ritrova gli interventi nella cronologia.
-- **Gestisci ed esporta.** Rinomina, duplica o sposta i libri nel cestino. Scarica il DOCX revisionato, l’elenco delle revisioni e il file originale; crea il PDF tramite la stampa del browser.
+- **Edit your manuscript.** Import DOCX, TXT, or Markdown and work with text, headings, tables, and formatting in the editor.
+- **Review with context.** AI reads chapters and smaller sections, builds a memory of the book, and suggests language, structure, and consistency improvements. Accept or reject suggestions individually or in bulk.
+- **Organize your book.** Detect an existing table of contents or generate one, refine headings, and identify potential citations and references to check.
+- **Keep your voice.** Book details bring together authors, credits, colophon information, and an editorial profile covering tone, audience, genre, and terminology.
+- **Annotate and rewrite.** Highlight passages, add comments, and ask AI to write, expand, or summarize selected text. Find past changes in the history panel.
+- **Manage and export.** Rename, duplicate, or move books to the trash. Download the revised DOCX, revision list, and original file, or create a PDF through your browser’s print dialog.
 
-## Provalo in locale
+## Try it locally
 
-Servono **Node.js 22+**, npm e una chiave OpenRouter per le funzioni AI.
+You’ll need **Node.js 22+**, npm, and an OpenRouter API key for AI features.
 
 ```bash
 npm install
 ```
 
-Crea `.env.development.local` nella radice del progetto:
+Create `.env.development.local` in the project root:
 
 ```env
-OPENROUTER_API_KEY=la_tua_chiave
+OPENROUTER_API_KEY=your_key_here
 
-# Facoltativi: modello di revisione e modello di secondo controllo
+# Optional: review model and second-pass review model
 # OPENROUTER_REVIEW_MODEL=google/gemini-2.5-flash
 # OPENROUTER_QA_MODEL=google/gemini-2.5-flash
 ```
 
-Poi avvia:
+Then start the app:
 
 ```bash
 npm run dev
 ```
 
-Apri [localhost:3000](http://localhost:3000). Il comando avvia anche l’ambiente locale Hexclave per l’autenticazione, senza richiedere di configurare manualmente le sue chiavi. Dopo aver modificato le variabili d’ambiente, riavvia il server.
+Open [localhost:3000](http://localhost:3000). The command also starts the local Hexclave authentication environment, so you don’t need to configure its keys manually. Restart the server after changing environment variables.
 
-## Da sapere
+## Good to know
 
-Bookr è **in sviluppo attivo**. Le funzioni AI sono attualmente abilitate solo nell’ambiente di sviluppo.
+Bookr is **under active development**. AI features are currently enabled only in development mode.
 
-- **Salvataggio locale:** la libreria vive nel browser, in IndexedDB; non è ancora sincronizzata nel cloud. Esporta una copia prima di cancellare i dati del browser. I lavori AI hanno checkpoint cifrati in `.bookr-data/` e richiedono il server locale acceso.
-- **Impaginazione:** l’editor usa una vista continua. L’import DOCX non conserva ogni dettaglio dei layout Word complessi; la paginazione finale dipende dall’esportazione. Il file originale resta separato.
-- **Revisione assistita:** le proposte richiedono valutazione editoriale. Il rilevamento di citazioni e riferimenti non equivale a una verifica delle fonti esterne.
-- **Privacy:** il testo necessario alle elaborazioni AI passa attraverso OpenRouter. Contenuti e metadati dei manoscritti sono esclusi dai log e dagli eventi analytics; le aree sensibili sono protette nelle session replay con `hexclave-private`.
+- **Local storage:** your library lives in the browser’s IndexedDB and is not yet synced to the cloud. Export a copy before clearing browser data. AI jobs use encrypted checkpoints in `.bookr-data/` and require the local server to stay running.
+- **Page layout:** the editor uses a continuous view. DOCX import does not preserve every detail of complex Word layouts; final pagination depends on the export. The original file is kept separately.
+- **Assisted review:** suggestions need editorial judgment. Detecting citations and references is not the same as verifying external sources.
+- **Privacy:** text needed for AI processing passes through OpenRouter. Manuscript content and metadata are excluded from logs and analytics events; sensitive areas are protected in session replays with `hexclave-private`.
 
-## Per chi sviluppa
+## Development
 
 **Next.js · React · TypeScript · Tiptap · Tailwind CSS · Hexclave · OpenRouter**
 
@@ -59,8 +59,12 @@ npm run lint
 npm run build
 ```
 
-Prossimi passi nel [TODO](TODO.md). Dettagli su [convergenza delle revisioni](docs/architecture/review-convergence.md), [cronologia](docs/architecture/manuscript-history.md) e [paginazione](docs/architecture/editor-pagination.md).
+See the [product concept](PRODUCT_CONCEPT.md) and [TODO](TODO.md) for direction and next steps. Architecture notes cover [review convergence](docs/architecture/review-convergence.md), [history](docs/architecture/manuscript-history.md), and [pagination](docs/architecture/editor-pagination.md).
 
-## Licenza
+## License
 
-Proprietaria, salvo diversa indicazione.
+Copyright © 2026 Martino Tempesta and contributors.
+
+Bookr is licensed under the [GNU Affero General Public License v3.0 only](LICENSE) (`AGPL-3.0-only`). Commercial use is allowed under its terms. If you offer a modified version over a network, you must offer its corresponding source code to users as required by the license.
+
+The software is provided without warranty. Third-party dependencies retain their own licenses. This license covers Bookr’s software, not manuscripts merely processed with it.

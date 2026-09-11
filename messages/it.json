@@ -9,31 +9,31 @@
   },
   "home": {
     "eyebrow": "Revisione editoriale assistita dall’AI",
-    "title": "Il tuo libro, ancora più tuo.",
+    "title": "Dalla bozza alla pubblicazione",
     "subtitle": "Un editor digitale che individua errori, incoerenze e passaggi deboli senza riscrivere la tua voce. Ogni proposta resta sotto il tuo controllo.",
-    "cta": "Revisiona il manoscritto",
-    "dashboardCta": "Dashboard",
-    "secondaryCta": "Scopri il metodo",
+    "cta": "Carica manoscritto",
+    "dashboardCta": "Carica manoscritto",
+    "secondaryCta": "Come funziona",
     "proof1": "Originale sempre conservato",
     "proof2": "Ogni modifica è motivata",
-    "proof3": "Approvi tu, una per una",
+    "proof3": "Decidi tu cosa applicare",
     "previewChapter": "Capitolo 07 · 18 di 42",
-    "previewCategory": "Stile · confidenza alta",
+    "previewCategory": "Grammatica · concordanza",
     "previewOriginalLabel": "Originale",
-    "previewOriginal": "La stanza era molto silenziosa, di un silenzio che sembrava quasi essere vivo.",
+    "previewOriginal": "Le pagine del quaderno era ancora bagnate di pioggia.",
     "previewProposalLabel": "Proposta",
-    "previewProposal": "La stanza taceva di un silenzio quasi vivo.",
-    "previewReason": "Riduce la ridondanza e conserva l’immagine scelta dall’autore.",
+    "previewProposal": "Le pagine del quaderno erano ancora bagnate di pioggia.",
+    "previewReason": "Il verbo deve concordare con il soggetto plurale “Le pagine”. Il resto della frase rimane invariato.",
     "previewReject": "Rifiuta",
     "previewApprove": "Approva",
-    "methodEyebrow": "Il metodo BookReview",
-    "methodTitle": "Prima comprende. Poi suggerisce.",
-    "step1Title": "Legge la struttura",
-    "step1Body": "Capitoli, personaggi, timeline e stile diventano una memoria coerente del libro.",
-    "step2Title": "Lavora per livelli",
-    "step2Body": "Correzione, stile e continuità vengono analizzati separatamente, con confidenza esplicita.",
-    "step3Title": "Lascia a te l’ultima parola",
-    "step3Body": "Nessuna riscrittura importante viene applicata senza una decisione consapevole dell’autore."
+    "methodEyebrow": "Il metodo Bookr",
+    "methodTitle": "Controlla lingua, struttura e coerenza del manoscritto.",
+    "step1Title": "Analizza i capitoli",
+    "step1Body": "Legge il testo a sezioni e raccoglie sintesi, nomi, eventi e terminologia per dare contesto alla revisione.",
+    "step2Title": "Segnala i problemi",
+    "step2Body": "Propone correzioni linguistiche e segnala possibili incoerenze e problemi strutturali, spiegando il motivo di ogni intervento.",
+    "step3Title": "Approva ed esporta",
+    "step3Body": "Raggiungi i passaggi segnalati, accetti o rifiuti le modifiche ed esporti il documento aggiornato in DOCX o PDF."
   },
   "signUp": {
     "metaTitle": "Crea il tuo account",
@@ -462,5 +462,17 @@
       "layout": "Pagine editor",
       "hint": "Riferimenti di pagina A4 sul testo visualizzato nell’editor. Word ricalcola l’impaginazione del DOCX esportato."
     }
+  },
+  "footer": {
+    "tagline": "Make your manuscript publishing-ready",
+    "navigation": "Navigazione nel footer",
+    "method": "Il metodo",
+    "workspace": "Apri lo studio",
+    "rights": "Tutti i diritti riservati.",
+    "language": "Lingua"
+  },
+  "homeMenu": {
+    "features": "Funzionalità",
+    "how": "Come funziona"
   }
 }

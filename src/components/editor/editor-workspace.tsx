@@ -24,6 +24,8 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { BookrLoader } from "@/components/bookr-loader";
 import { AuthActions } from "@/components/auth-actions";
 import { countWords } from "@/lib/editor/document";
 import { duplicateProject } from "@/lib/editor/duplicate-project";
@@ -258,7 +260,7 @@ export function EditorWorkspace({
         >
           <Menu size={22} />
         </button>
-        <Image src="/bookr-logo.svg" alt="Bookr" width={100} height={32} />
+        <Image src="/bookr-logo-v2.svg" alt="Bookr" width={100} height={32} />
         <button className="studio-upload-circle" aria-label={t("newManuscript")} title={t("newManuscript")} disabled={!loaded||importing||busy||changing} onClick={()=>fileInput.current?.click()}>{importing?<LoaderCircle className="animate-spin" size={19}/>:<Plus size={21}/>}</button>
       </div>
       {mobileNav && (
@@ -272,7 +274,7 @@ export function EditorWorkspace({
         <div className="sidebar-brand">
           <Link href="/" aria-label="Bookr — Home">
             <Image
-              src="/bookr-logo.svg"
+              src="/bookr-logo-v2.svg"
               alt="Bookr"
               width={124}
               height={40}
@@ -314,7 +316,7 @@ export function EditorWorkspace({
           {view==="library"&&<label className="header-library-search"><Search size={15} aria-hidden="true"/><input type="search" aria-label={t("searchManuscripts")} placeholder={t("searchPlaceholder")} value={search} onChange={event=>setSearch(event.target.value)}/></label>}
           {activeProjects.length>0&&<details className="ai-activity hexclave-private"><summary><span className="ai-orbit" aria-hidden="true"/><span role="status">{en?"AI working":"AI al lavoro"} · {activeProjects.length}</span></summary><div className="ai-activity-menu">{activeProjects.map(p=><button key={p.id} onClick={()=>openProject(p.id)}><span className="ai-dot"/><span>{p.metadata?.title||p.name}<small>{titleActivity.includes(p.id)?(en?"Generating text":"Generazione testo"):`${en?"Processing":"Elaborazione"} · ${Math.min(100,Math.round((p.analysis?.done||0)/Math.max(1,p.analysis?.total||1)*100))}%`}</small></span></button>)}</div></details>}
           <SaveStatus state={saveState}/>
-          <div className="header-account"><AuthActions showIdentity showSettings projects={projects} /></div>
+          <div className="header-account flex items-center gap-2"><LanguageSwitcher disabled={busy || changing || saveState !== "saved"} /><AuthActions showIdentity showSettings projects={projects} /></div>
         </div>
         {(error || saveState === "error") && (
           <div role="alert" className="studio-global-error">
@@ -334,8 +336,7 @@ export function EditorWorkspace({
         )}
         {!loaded ? (
           <div className="studio-loading">
-            <LoaderCircle className="animate-spin" />
-            {t("loadingLibrary")}
+            <BookrLoader label={t("loadingLibrary")} />
           </div>
         ) : view === "history" ? (
           <HistoryPanel projects={liveProjects} activeId={activeId} onSelect={setActiveId} onOpen={openProject} locked={busy||changing||activeProjects.length>0} onRestore={(project,id)=>{setSaveState("saving");setProjects(items=>items.map(item=>item.id===project.id?restoreHistory(item,id):item));}}/>

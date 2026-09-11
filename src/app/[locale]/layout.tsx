@@ -15,13 +15,14 @@ const sans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
 const serif = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-cormorant",
+  style: ["normal", "italic"],
   weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "BookReview — Il tuo libro, ancora più tuo",
-    template: "%s · BookReview",
+    default: "Bookr — Make your manuscript publishing-ready",
+    template: "%s · Bookr",
   },
   description:
     "Revisione editoriale assistita dall'AI che protegge la voce dell'autore.",

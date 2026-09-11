@@ -14,7 +14,7 @@ export function HeroPrimaryCta() {
   return (
     <Button size="lg" nativeButton={false} render={<Link href="/workspace" />}>
       {user ? t("dashboardCta") : t("cta")}
-      <ArrowRight data-icon="inline-end" />
+      <ArrowRight className="home-cta-arrow" data-icon="inline-end" />
     </Button>
   );
 }

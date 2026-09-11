@@ -350,7 +350,7 @@ function AuthCanvas({ children }: { children: React.ReactNode }) {
           <div className="absolute -bottom-28 -left-28 size-[24rem] rounded-full border border-paper/10" />
           <Link href="/" className="relative flex w-fit items-center gap-3">
             <span className="grid size-10 place-items-center rounded-xl bg-paper text-ink"><BookOpenText className="size-5" /></span>
-            <span className="font-serif text-2xl font-semibold">BookReview</span>
+            <span className="font-serif text-2xl font-semibold">Bookr</span>
           </Link>
           <div className="relative max-w-lg pb-8">
             <p className="font-serif text-5xl font-medium leading-[1.05] tracking-[-.025em]">“{t("quote")}”</p>
@@ -363,7 +363,7 @@ function AuthCanvas({ children }: { children: React.ReactNode }) {
         </aside>
         <section className="flex min-h-screen flex-col">
           <header className="flex items-center justify-between px-6 py-6 sm:px-10">
-            <Link href="/" className="flex items-center gap-2 text-sm font-medium text-ink/55 hover:text-ink lg:hidden"><BookOpenText className="size-5" />BookReview</Link>
+            <Link href="/" className="flex items-center gap-2 text-sm font-medium text-ink/55 hover:text-ink lg:hidden"><BookOpenText className="size-5" />Bookr</Link>
             <span className="hidden text-xs font-semibold uppercase tracking-[.18em] text-ink/35 lg:block">{t("step")}</span>
             <LanguageSwitcher />
           </header>

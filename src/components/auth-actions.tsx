@@ -8,6 +8,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { PreferencesModal } from "@/components/account/preferences-modal";
 import type { ManuscriptProject } from "@/lib/editor/types";
 import { AccountSettingsModal } from "@/components/account/account-settings-modal";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -18,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function AuthActions({showIdentity=false, showSettings=false, projects=[]}:{showIdentity?:boolean;showSettings?:boolean;projects?:ManuscriptProject[]}) {
+export function AuthActions({showIdentity=false, showSettings=false, showWorkspace=false, projects=[]}:{showIdentity?:boolean;showSettings?:boolean;showWorkspace?:boolean;projects?:ManuscriptProject[]}) {
   const app = useHexclaveApp();
   const user = useUser();
   const t = useTranslations("nav");
@@ -42,8 +43,9 @@ export function AuthActions({showIdentity=false, showSettings=false, projects=[]
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-2">
       {error ? <span className="hidden text-xs text-destructive sm:block">{error}</span> : null}
+      {user && showWorkspace && <Link href="/workspace" className="mr-2 rounded-full bg-forest px-4 py-2 text-sm font-medium text-white hover:bg-forest/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-forest">{en ? "Open studio" : "Apri lo studio"}</Link>}
       {user && showSettings && <button type="button" onClick={()=>setPreferencesOpen(true)} aria-label={en?"User preferences":"Preferenze utente"} className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-ink/60 hover:bg-ink/5"><Settings size={18}/></button>}
       {user&&preferencesOpen&&<PreferencesModal projects={projects} onClose={()=>setPreferencesOpen(false)}/>}
 
@@ -53,7 +55,7 @@ export function AuthActions({showIdentity=false, showSettings=false, projects=[]
             type="button"
             disabled={pending}
             aria-label={`${t("account")}: ${user.displayName || user.primaryEmail || "Bookr"}`}
-            className={`inline-flex items-center rounded-full outline-none transition-colors hover:bg-coral/10 focus-visible:ring-3 focus-visible:ring-coral/30 data-popup-open:bg-coral/10 ${showIdentity?"gap-3 py-1 pr-3 text-left max-w-full":"size-11 justify-center p-0"}`}
+            className={`inline-flex items-center rounded-full outline-none transition-colors hover:bg-coral/10 focus-visible:ring-3 focus-visible:ring-coral/30 data-popup-open:bg-coral/10 ${showIdentity?"gap-3 py-1 pr-3 text-left max-w-[12rem] sm:max-w-[18rem]":"size-11 justify-center p-0"}`}
           >
             <UserAvatar user={user} />
             {showIdentity&&<span className="min-w-0 truncate text-sm font-medium">{user.displayName?.trim() || t("account")}</span>}

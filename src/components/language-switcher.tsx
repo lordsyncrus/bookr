@@ -13,21 +13,21 @@ import {
 import { usePathname, useRouter } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ disabled = false }: { disabled?: boolean }) {
   const locale = useLocale() as AppLocale;
   const pathname = usePathname();
   const router = useRouter();
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="ghost" size="icon" aria-label="Change language" />}>
+      <DropdownMenuTrigger render={<Button variant="ghost" size="icon" disabled={disabled} aria-label={locale === "it" ? "Cambia lingua" : "Change language"} />}>
         <Languages />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => router.replace(pathname, { locale: "it" })}>
+        <DropdownMenuItem disabled={disabled} onClick={() => router.replace(pathname, { locale: "it" })}>
           Italiano {locale === "it" ? "✓" : ""}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.replace(pathname, { locale: "en" })}>
+        <DropdownMenuItem disabled={disabled} onClick={() => router.replace(pathname, { locale: "en" })}>
           English {locale === "en" ? "✓" : ""}
         </DropdownMenuItem>
       </DropdownMenuContent>

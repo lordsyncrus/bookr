@@ -9,31 +9,31 @@
   },
   "home": {
     "eyebrow": "AI-assisted editorial review",
-    "title": "Your book, only more yours.",
+    "title": "From draft to publication",
     "subtitle": "A digital editor that spots errors, inconsistencies and weak passages without rewriting your voice. Every suggestion stays under your control.",
-    "cta": "Review your manuscript",
-    "dashboardCta": "Dashboard",
-    "secondaryCta": "See the method",
+    "cta": "Upload manuscript",
+    "dashboardCta": "Upload manuscript",
+    "secondaryCta": "How it works",
     "proof1": "Your original is always preserved",
     "proof2": "Every change is explained",
-    "proof3": "You approve each suggestion",
+    "proof3": "You decide what to apply",
     "previewChapter": "Chapter 07 · 18 of 42",
-    "previewCategory": "Style · high confidence",
+    "previewCategory": "Grammar · agreement",
     "previewOriginalLabel": "Original",
-    "previewOriginal": "The room was very quiet, with a silence that almost seemed alive.",
+    "previewOriginal": "The pages of the notebook was still wet from the rain.",
     "previewProposalLabel": "Suggestion",
-    "previewProposal": "The room held a silence that felt almost alive.",
-    "previewReason": "Removes redundancy while preserving the author’s chosen image.",
+    "previewProposal": "The pages of the notebook were still wet from the rain.",
+    "previewReason": "The verb must agree with the plural subject “The pages”. The rest of the sentence stays unchanged.",
     "previewReject": "Reject",
     "previewApprove": "Approve",
-    "methodEyebrow": "The BookReview method",
-    "methodTitle": "It understands first. Then it suggests.",
-    "step1Title": "Reads the structure",
-    "step1Body": "Chapters, characters, timeline and style become a coherent memory of the book.",
-    "step2Title": "Works in layers",
-    "step2Body": "Language, style and continuity are assessed separately, each with an explicit confidence level.",
-    "step3Title": "Leaves the final word to you",
-    "step3Body": "No substantial rewrite is applied without a conscious decision from the author."
+    "methodEyebrow": "The Bookr method",
+    "methodTitle": "Check your manuscript’s language, structure, and consistency.",
+    "step1Title": "Analyze chapters",
+    "step1Body": "Reads the text in sections and gathers summaries, names, events, and terminology to give the review context.",
+    "step2Title": "Identify issues",
+    "step2Body": "Suggests language corrections and flags potential inconsistencies and structural issues, explaining each proposed intervention.",
+    "step3Title": "Approve and export",
+    "step3Body": "Jump to flagged passages, accept or reject changes, and export the updated document as DOCX or PDF."
   },
   "signUp": {
     "metaTitle": "Create your account",
@@ -462,5 +462,17 @@
       "layout": "Editor pages",
       "hint": "A4 page references for the text displayed in the editor. Word recalculates pagination in the exported DOCX."
     }
+  },
+  "footer": {
+    "tagline": "Make your manuscript publishing-ready",
+    "navigation": "Footer navigation",
+    "method": "Our method",
+    "workspace": "Open the studio",
+    "rights": "All rights reserved.",
+    "language": "Language"
+  },
+  "homeMenu": {
+    "features": "Features",
+    "how": "How it works"
   }
 }
