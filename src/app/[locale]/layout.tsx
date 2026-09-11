@@ -49,7 +49,7 @@ export default async function LocaleLayout({
     <html lang={locale} suppressHydrationWarning>
       <body className={`${sans.variable} ${serif.variable} min-h-screen`}>
         <NextIntlClientProvider messages={messages}>
-          <HexclaveProvider app={hexclaveServerApp}>
+          <HexclaveProvider app={hexclaveServerApp} lang={locale === "it" ? "it-IT" : "en-US"}>
             <HexclaveTheme>
               <TooltipProvider>{children}</TooltipProvider>
             </HexclaveTheme>

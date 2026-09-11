@@ -7,6 +7,7 @@ export const hexclaveClientApp = new HexclaveClientApp({
       type: "hosted",
     },
     accountSettings: { type: "custom", url: "/account-settings", version: 1 },
+    signIn: { type: "custom", url: "/sign-in", version: 1 },
     signUp: {
       type: "custom",
       url: "/sign-up",

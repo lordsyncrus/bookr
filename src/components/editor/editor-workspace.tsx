@@ -281,7 +281,7 @@ export function EditorWorkspace({
               priority
             />
           </Link>
-          <button className="studio-upload-circle" aria-label={t("newManuscript")} title={t("newManuscript")} disabled={!loaded||importing||busy||changing} onClick={()=>fileInput.current?.click()}>{importing?<LoaderCircle className="animate-spin" size={19}/>:<Plus size={21}/>}</button>
+          <button className="studio-upload-circle" aria-label={t("newManuscript")} title={t("newManuscript")} disabled={!loaded||importing||busy||changing} onClick={()=>fileInput.current?.click()}>{importing?<LoaderCircle className="animate-spin" size={19}/>:<Plus size={21}/>}<span className="sidebar-upload-label">{t("newManuscript")}</span></button>
           <button
             className="mobile-nav-close"
             aria-label={t("closeNavigation")}
@@ -311,7 +311,7 @@ export function EditorWorkspace({
       <main className="studio-main">
         <div className="studio-global-bar">
           <nav className="compact-workspace-breadcrumb hexclave-private" aria-label={en?"Location":"Posizione"}>
-            {view!=="library"&&current?<><button disabled={busy||changing} onClick={()=>{setView("library");setTrashView(false);}}>{t("library")}</button><ChevronRight size={13}/><strong>{bookTitle(current)}{view==="history"?` · ${en?"History":"Cronologia"}`:""}</strong></>:<span>{trashView?(en?"Trash":"Cestino"):t("library")}</span>}
+            {view!=="library"&&current?<><button className="workspace-back" disabled={busy||changing} onClick={()=>{setView("library");setTrashView(false);}}><ArrowLeft size={17} aria-hidden="true"/><span>{t("library")}</span></button><ChevronRight size={13}/><strong>{bookTitle(current)}{view==="history"?` · ${en?"History":"Cronologia"}`:""}</strong></>:<span>{trashView?(en?"Trash":"Cestino"):t("library")}</span>}
           </nav>
           {view==="library"&&<label className="header-library-search"><Search size={15} aria-hidden="true"/><input type="search" aria-label={t("searchManuscripts")} placeholder={t("searchPlaceholder")} value={search} onChange={event=>setSearch(event.target.value)}/></label>}
           {activeProjects.length>0&&<details className="ai-activity hexclave-private"><summary><span className="ai-orbit" aria-hidden="true"/><span role="status">{en?"AI working":"AI al lavoro"} · {activeProjects.length}</span></summary><div className="ai-activity-menu">{activeProjects.map(p=><button key={p.id} onClick={()=>openProject(p.id)}><span className="ai-dot"/><span>{p.metadata?.title||p.name}<small>{titleActivity.includes(p.id)?(en?"Generating text":"Generazione testo"):`${en?"Processing":"Elaborazione"} · ${Math.min(100,Math.round((p.analysis?.done||0)/Math.max(1,p.analysis?.total||1)*100))}%`}</small></span></button>)}</div></details>}

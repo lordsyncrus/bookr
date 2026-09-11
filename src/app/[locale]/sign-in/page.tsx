@@ -4,14 +4,11 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AuthExperience } from "@/components/auth/auth-experience";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("signUp");
-  return {
-    title: t("metaTitle"),
-    description: t("metaDescription"),
-  };
+  const t = await getTranslations("nav");
+  return { title: t("signIn") };
 }
 
-export default async function SignUpPage({
+export default async function SignInPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -19,5 +16,5 @@ export default async function SignUpPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <AuthExperience mode="sign-up" />;
+  return <AuthExperience mode="sign-in" />;
 }

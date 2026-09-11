@@ -12,7 +12,7 @@ export function SaveStatus({state}:{state:"saved"|"saving"|"error"}) {
     return ()=>{document.removeEventListener("pointerdown",outside);document.removeEventListener("keydown",escape);};
   },[open]);
   return <div className="save-status-control" ref={root}>
-    <button ref={trigger} type="button" className={`save-indicator ${state==="error"?"has-error":""}`} aria-expanded={open} aria-controls="save-status-details" onClick={()=>setOpen(value=>!value)}>{state==="saving"?<LoaderCircle size={13} className="animate-spin"/>:state==="error"?<X size={13}/>:<Check size={13}/>}<span role="status">{t(state)}</span><ChevronDown size={12}/></button>
+    <button ref={trigger} type="button" className={`save-indicator ${state==="error"?"has-error":""}`} aria-label={t(state)} title={t(state)} aria-expanded={open} aria-controls="save-status-details" onClick={()=>setOpen(value=>!value)}>{state==="saving"?<LoaderCircle size={13} className="animate-spin"/>:state==="error"?<X size={13}/>:<Check size={13}/>}<span role="status">{t(state)}</span><ChevronDown size={12}/></button>
     {open&&<div id="save-status-details" className="save-status-details"><HardDrive size={17}/><div><strong>{t("onThisDevice")}</strong><p>{t("deviceNote")}</p>{state==="error"&&<p role="alert">{t("errors.STORAGE")}</p>}</div></div>}
   </div>;
 }

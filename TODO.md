@@ -1,5 +1,10 @@
 # TODO
 
+## Design della pagina di login
+
+- [x] Rifare il design della pagina di login: moduli nativi Hexclave per accesso e registrazione, composizione compatta con palette e logo Bookr, testi in italiano e inglese.
+  - Verificati TypeScript, lint, risposte HTTP e rendering in Chrome su desktop e finestra stretta (500 px). Controllati cambio lingua IT/EN, schede email/password, errori sui campi vuoti, navigazione accesso/registrazione e reindirizzamento della sessione già autenticata. Corretti font del modulo e caricamento del logo. Restano da provare viewport mobile inferiori a 500 px e autenticazione completa con credenziali/OTP.
+
 ## Affidabilità della revisione editoriale
 
 ### Priorità alta

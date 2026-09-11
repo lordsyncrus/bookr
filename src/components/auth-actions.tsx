@@ -55,10 +55,10 @@ export function AuthActions({showIdentity=false, showSettings=false, showWorkspa
             type="button"
             disabled={pending}
             aria-label={`${t("account")}: ${user.displayName || user.primaryEmail || "Bookr"}`}
-            className={`inline-flex items-center rounded-full outline-none transition-colors hover:bg-coral/10 focus-visible:ring-3 focus-visible:ring-coral/30 data-popup-open:bg-coral/10 ${showIdentity?"gap-3 py-1 pr-3 text-left max-w-[12rem] sm:max-w-[18rem]":"size-11 justify-center p-0"}`}
+            className={`auth-account-trigger inline-flex items-center rounded-full outline-none transition-colors hover:bg-coral/10 focus-visible:ring-3 focus-visible:ring-coral/30 data-popup-open:bg-coral/10 ${showIdentity?"gap-3 py-1 pr-3 text-left max-w-[12rem] sm:max-w-[18rem]":"size-11 justify-center p-0"}`}
           >
             <UserAvatar user={user} />
-            {showIdentity&&<span className="min-w-0 truncate text-sm font-medium">{user.displayName?.trim() || t("account")}</span>}
+            {showIdentity&&<span className="auth-account-name min-w-0 truncate text-sm font-medium">{user.displayName?.trim() || t("account")}</span>}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={8} className="w-64 rounded-xl p-2">
             <div className="flex items-center gap-3 px-2 py-2.5">
